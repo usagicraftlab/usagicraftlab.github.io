@@ -34,6 +34,7 @@
 .scroll-title .title-transparent,.scroll-title .title-cardcase{display:block;flex:0 0 auto;will-change:opacity,color,transform}
 .scroll-title .title-transparent{position:relative;z-index:2}
 .scroll-title .title-cardcase{position:relative;z-index:1;margin-left:.22em;color:var(--card-color,#111);transform:translateX(var(--card-shift,0px))}
+@media(max-width:700px){.scroll-title{font-size:clamp(26px,7.5vw,34px)!important;letter-spacing:-.06em}}
 
 @media(prefers-reduced-motion:reduce){.scroll-title{transform:none!important;opacity:1!important;background-position:0 0!important}}
 </style><style>.workgallery{padding:0 4vw 90px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.workgallery img{width:100%;height:55vw;max-height:760px;object-fit:cover;display:block}.workgallery .wide{grid-column:1/-1;height:auto;max-height:none}@media(max-width:700px){.workgallery{padding:0 0 60px;display:block}.workgallery img,.workgallery .wide{height:auto;max-height:none;margin-bottom:4px}}</style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
@@ -69,7 +70,7 @@
       var transparentWidth=transparent?transparent.offsetWidth:0;
       title.style.setProperty('--card-shift',(-transparentWidth*.78*eased).toFixed(2)+'px');
       title.style.setProperty('--card-color','rgb('+Math.round(17+(176-17)*eased)+','+Math.round(17+(219-17)*eased)+','+Math.round(17+(238-17)*eased)+')');
-      if(transparent){transparent.style.opacity=String(1-.5*eased);}
+      if(transparent){transparent.style.opacity=String(1-.8*eased);}
       ticking=false;
     }
     function requestUpdate(){if(!ticking){ticking=true;requestAnimationFrame(updateTitle);}}
