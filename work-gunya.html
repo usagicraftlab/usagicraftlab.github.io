@@ -70,7 +70,8 @@
     function progress(){
       var vh=window.innerHeight||document.documentElement.clientHeight;
       var distance=Math.max(vh*.6,title.offsetTop-vh*.2);
-      return Math.max(0,Math.min(1,(window.scrollY||window.pageYOffset)/distance));
+      var raw=Math.max(0,Math.min(1,(window.scrollY||window.pageYOffset)/distance));
+      return Math.max(0,Math.min(1,(raw-.18)/.82));
     }
     var ticking=false;
     function updateTitle(){
