@@ -28,7 +28,7 @@
  .section{padding-left:4vw!important;padding-right:4vw!important}
 }
 
-/* Scroll title effect: floating */
+/* Scroll title effect: soft floating motion */
 .scroll-title{will-change:transform;transform-origin:left center}
 
 @media(prefers-reduced-motion:reduce){.scroll-title{transform:none!important;opacity:1!important;background-position:0 0!important}}
@@ -52,14 +52,20 @@
 
   var title=document.querySelector('.scroll-title');
   if(title){
+    var ticking=false;
     function updateTitle(){
-      var rect=title.getBoundingClientRect();
       var vh=window.innerHeight||document.documentElement.clientHeight;
-      var p=Math.max(0,Math.min(1,(vh*0.78-rect.top)/(vh*0.55)));
-      title.style.transform='translateY('+(-50*p)+'px)';
+      var y=window.scrollY||window.pageYOffset;
+      var distance=Math.max(vh*.6,title.offsetTop-vh*.2);
+      var p=Math.max(0,Math.min(1,y/distance));
+      var floatY=-64*p+Math.sin(y*.018)*7*p;
+      var rotate=Math.sin(y*.011)*.8*p;
+      title.style.transform='translate3d(0,'+floatY.toFixed(2)+'px,0) rotate('+rotate.toFixed(2)+'deg)';
+      ticking=false;
     }
-    window.addEventListener('scroll',updateTitle,{passive:true});
-    window.addEventListener('resize',updateTitle);
+    function requestUpdate(){if(!ticking){ticking=true;requestAnimationFrame(updateTitle);}}
+    window.addEventListener('scroll',requestUpdate,{passive:true});
+    window.addEventListener('resize',requestUpdate);
     updateTitle();
   }
 })();
