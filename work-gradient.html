@@ -30,7 +30,7 @@
 
 /* Scroll title effect: pure black, then a left-to-right red-white reveal */
 .scroll-title{--reveal:100%;position:relative;color:#111!important}
-.scroll-title::after{content:attr(data-text);position:absolute;inset:0;color:transparent;background:linear-gradient(90deg,#fff 0%,#fff 22%,#d82f49 100%);-webkit-background-clip:text;background-clip:text;clip-path:inset(0 var(--reveal) 0 0);will-change:clip-path;pointer-events:none}
+.scroll-title::after{content:attr(data-text);position:absolute;inset:0;color:transparent;background:linear-gradient(90deg,#fff 0%,#fff 5%,#d82f49 100%);-webkit-background-clip:text;background-clip:text;clip-path:inset(0 var(--reveal) 0 0);will-change:clip-path;pointer-events:none}
 
 @media(prefers-reduced-motion:reduce){.scroll-title{transform:none!important;opacity:1!important;background-position:0 0!important}}
 </style><style>.workgallery{padding:0 4vw 90px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.workgallery img{width:100%;height:55vw;max-height:760px;object-fit:cover;display:block}.workgallery .wide{grid-column:1/-1;height:auto;max-height:none}@media(max-width:700px){.workgallery{padding:0 0 60px;display:block}.workgallery img,.workgallery .wide{height:auto;max-height:none;margin-bottom:4px}}</style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
