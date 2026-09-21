@@ -28,8 +28,10 @@
  .section{padding-left:4vw!important;padding-right:4vw!important}
 }
 
-/* Scroll title effect: soft Gunya distortion */
-.scroll-title{transform-origin:left center;will-change:transform}
+/* Scroll title effect: per-letter Gunya distortion */
+.scroll-title{transform-origin:left center;will-change:transform;display:flex;flex-wrap:wrap}
+.scroll-title .title-letter{display:inline-block;white-space:pre;will-change:transform}
+.scroll-title .title-space{width:.22em}
 
 @media(prefers-reduced-motion:reduce){.scroll-title{transform:none!important;opacity:1!important;background-position:0 0!important}}
 </style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
@@ -52,14 +54,38 @@
 
   var title=document.querySelector('.scroll-title');
   if(title){
-    function updateTitle(){
-      var rect=title.getBoundingClientRect();
+    var text=title.textContent;
+    title.setAttribute('aria-label',text);
+    title.textContent='';
+    var letters=[];
+    Array.prototype.forEach.call(text,function(char,index){
+      var span=document.createElement('span');
+      span.className='title-letter'+(char===' '?' title-space':'');
+      span.setAttribute('aria-hidden','true');
+      span.textContent=char===' '?'\u00a0':char;
+      span.dataset.index=index;
+      title.appendChild(span);
+      letters.push(span);
+    });
+    function progress(){
       var vh=window.innerHeight||document.documentElement.clientHeight;
-      var p=Math.max(0,Math.min(1,(vh*0.78-rect.top)/(vh*0.55)));
-      const wave=Math.sin(p*18)*p; title.style.transform='translateX('+(wave*18)+'px) skewX('+(wave*8)+'deg) rotate('+(wave*1.5)+'deg)';
+      var distance=Math.max(vh*.6,title.offsetTop-vh*.2);
+      return Math.max(0,Math.min(1,(window.scrollY||window.pageYOffset)/distance));
     }
-    window.addEventListener('scroll',updateTitle,{passive:true});
-    window.addEventListener('resize',updateTitle);
+    var ticking=false;
+    function updateTitle(){
+      var p=progress();
+      var y=window.scrollY||window.pageYOffset;
+      letters.forEach(function(letter,index){
+        var wave=Math.sin(y*.028+index*.82)*p;
+        var wave2=Math.cos(y*.019+index*1.13)*p;
+        letter.style.transform='translate('+((wave*7).toFixed(2))+'px,'+((wave2*10).toFixed(2))+'px) rotate('+((wave*5).toFixed(2))+'deg) skewY('+((wave2*4).toFixed(2))+'deg)';
+      });
+      ticking=false;
+    }
+    function requestUpdate(){if(!ticking){ticking=true;requestAnimationFrame(updateTitle);}}
+    window.addEventListener('scroll',requestUpdate,{passive:true});
+    window.addEventListener('resize',requestUpdate);
     updateTitle();
   }
 })();
