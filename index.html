@@ -1,49 +1,32 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>USAGI Craft Lab.</title>
-  <meta name="description" content="USAGI Craft Lab. — objects, experiments and product design.">
-  <style>
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f4f1;color:#171717;font-family:Arial,"Helvetica Neue",sans-serif}
-    a{color:inherit;text-decoration:none}header{display:flex;justify-content:space-between;align-items:center;padding:24px 4vw;position:relative;z-index:2}
-    .logo{font-weight:700;letter-spacing:-.03em}.nav{display:flex;gap:24px;font-size:13px}
-    .hero{min-height:58vh;display:flex;align-items:flex-end;padding:7vw 4vw 5vw}
-    h1{font-size:clamp(52px,10vw,150px);line-height:.83;letter-spacing:-.065em;margin:0;max-width:1100px;font-weight:600}
-    .intro{display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:0 4vw 9vw}
-    .intro p{grid-column:2;max-width:560px;font-size:clamp(18px,2vw,28px);line-height:1.35;margin:0}
-    .works{padding:0 4vw 10vw}.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.12em;border-top:1px solid #aaa;padding-top:14px;margin-bottom:35px}
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}.work{margin-bottom:45px}.work:nth-child(1),.work:nth-child(4){grid-column:span 7}.work:nth-child(2),.work:nth-child(3){grid-column:span 5}.work:nth-child(n+5){grid-column:span 4}
-    .work img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#ddd;filter:saturate(.92);transition:transform .35s ease}.image-wrap{overflow:hidden}.work:hover img{transform:scale(1.015)}
-    .caption{display:flex;justify-content:space-between;gap:12px;margin-top:10px;font-size:12px}.caption span:last-child{color:#777}
-    .about{padding:0 4vw 10vw;display:grid;grid-template-columns:1fr 1fr;gap:30px}.about-copy{font-size:clamp(24px,3.4vw,48px);line-height:1.15;letter-spacing:-.035em;margin:0}
-    footer{margin:0 4vw;padding:25px 0 35px;border-top:1px solid #aaa;display:flex;justify-content:space-between;font-size:12px}
-    @media(max-width:720px){header{padding:20px}.nav{gap:14px}.hero{min-height:46vh;padding:60px 20px 40px}.intro{display:block;padding:0 20px 90px}.intro p{max-width:none}.works{padding:0 20px 80px}.grid{display:block}.work{margin-bottom:28px}.about{display:block;padding:0 20px 90px}footer{margin:0 20px}.about-copy{margin-top:30px}}
-  </style>
-</head>
-<body>
-  <header>
-    <a class="logo" href="#">USAGI Craft Lab.</a>
-    <nav class="nav"><a href="#works">Works</a><a href="#about">About</a></nav>
-  </header>
-  <main>
-    <section class="hero"><h1>Objects for<br>everyday life.</h1></section>
-    <section class="intro"><p>USAGI Craft Lab. explores objects through digital fabrication, materials and playful experiments — making everyday things a little more surprising.</p></section>
-    <section class="works" id="works">
-      <div class="section-title">Selected Works</div>
-      <div class="grid">
-        <article class="work"><div class="image-wrap"><img src="images/Product%20Design/01_POLY.jpg" alt="POLY"></div><div class="caption"><span>POLY</span><span>Product Design</span></div></article>
-        <article class="work"><div class="image-wrap"><img src="images/Product%20Design/02_HANAKO.jpg" alt="HANAKO"></div><div class="caption"><span>HANAKO</span><span>Product Design</span></div></article>
-        <article class="work"><div class="image-wrap"><img src="images/Product%20Design/03_MUwatch.jpg" alt="MU watch"></div><div class="caption"><span>MU watch</span><span>Product Design</span></div></article>
-        <article class="work"><div class="image-wrap"><img src="images/Product%20Design/04_tomo.jpg" alt="tomo"></div><div class="caption"><span>tomo</span><span>Product Design</span></div></article>
-        <article class="work"><div class="image-wrap"><img src="images/Woodwork/01_loom.jpg" alt="Loom"></div><div class="caption"><span>Loom</span><span>Woodwork</span></div></article>
-        <article class="work"><div class="image-wrap"><img src="images/Woodwork/02_stool.jpg" alt="Stool"></div><div class="caption"><span>Stool</span><span>Woodwork</span></div></article>
-        <article class="work"><div class="image-wrap"><img src="images/Woodwork/03_rul60.jpg" alt="RUL60"></div><div class="caption"><span>RUL60</span><span>Woodwork</span></div></article>
-      </div>
-    </section>
-    <section class="about" id="about"><div class="section-title">About</div><p class="about-copy">Beautiful, useful objects made through experimentation with form, material and digital fabrication.</p></section>
-  </main>
-  <footer><span>USAGI Craft Lab.</span><span>Tokyo, Japan</span></footer>
-</body>
-</html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>USAGI Craft Lab.</title><meta name="description" content="USAGI Craft Lab. — 3D printed objects and experiments for everyday life.">
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:#111;background:#fff;font-family:Arial,"Helvetica Neue","Noto Sans JP",sans-serif}a{color:inherit;text-decoration:none}
+header{height:72px;padding:0 4vw;display:flex;align-items:center;justify-content:space-between;background:#fff}.logo{font-size:18px;font-weight:700;letter-spacing:-.03em}.menu{display:flex;gap:26px;font-size:13px}
+.works{width:100%}.work{position:relative;width:100%;overflow:hidden;background:#eee;border-bottom:5px solid #fff}.work img{display:block;width:100%;height:min(78vw,850px);object-fit:cover;transition:transform .5s ease}.work:hover img{transform:scale(1.01)}
+.label{position:absolute;left:4vw;bottom:3vw;background:#fff;padding:9px 12px;font-size:12px}.label b{margin-right:10px}.label span{color:#666}
+.more{padding:72px 4vw 110px;text-align:center}.more a{display:inline-block;border-bottom:1px solid #111;padding:8px 0;font-size:14px}
+.about,.contact{padding:90px 4vw 110px;border-top:1px solid #bbb;display:grid;grid-template-columns:1fr 2fr;gap:5vw}.kicker{font-size:13px}.big{font-size:clamp(28px,4.2vw,62px);line-height:1.08;letter-spacing:-.04em;max-width:900px;margin:0}.bodycopy{max-width:620px;font-size:15px;line-height:1.9;margin-top:34px}
+.contact-links{margin-top:45px;border-top:1px solid #bbb}.contact-links a{display:flex;justify-content:space-between;padding:19px 0;border-bottom:1px solid #bbb;font-size:18px}
+.social{padding:70px 4vw 90px;border-top:1px solid #bbb;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.social a{font-size:clamp(24px,3vw,45px);letter-spacing:-.03em}.social a:after{content:" ↗";font-size:.6em}
+footer{padding:25px 4vw 35px;border-top:1px solid #bbb;display:flex;justify-content:space-between;font-size:11px}
+@media(max-width:700px){header{height:58px;padding:0 18px}.menu a:not(:last-child){display:none}.menu{gap:0}.menu a:last-child{font-size:0}.menu a:last-child:after{content:"☰";font-size:22px}.work{border-bottom:4px solid #fff}.work img{height:105vw}.label{left:18px;bottom:18px}.about,.contact{display:block;padding:70px 18px 80px}.kicker{margin-bottom:35px}.big{font-size:32px}.bodycopy{font-size:14px}.more{padding:55px 18px 80px}.social{padding:50px 18px 65px;display:block}.social a{display:flex;justify-content:space-between;padding:18px 0;border-bottom:1px solid #bbb;font-size:24px}footer{margin:0;padding:22px 18px 30px;display:block}footer span:last-child{display:block;margin-top:12px}}
+</style></head><body>
+<header><a class="logo" href="#">USAGI Craft Lab.</a><nav class="menu"><a href="#works">Works</a><a href="#about">About</a><a href="#contact">Contact</a></nav></header>
+<main>
+<section class="works" id="works">
+<article class="work"><img src="images/Product%20Design/01_POLY.jpg" alt="POLY"><div class="label"><b>POLY</b><span>Product Design</span></div></article>
+<article class="work"><img src="images/Product%20Design/02_HANAKO.jpg" alt="HANAKO"><div class="label"><b>HANAKO</b><span>Product Design</span></div></article>
+<article class="work"><img src="images/Product%20Design/03_MUwatch.jpg" alt="MU watch"><div class="label"><b>MU watch</b><span>Product Design</span></div></article>
+<article class="work"><img src="images/Product%20Design/04_tomo.jpg" alt="tomo"><div class="label"><b>tomo</b><span>Product Design</span></div></article>
+<article class="work"><img src="images/Woodwork/01_loom.jpg" alt="Loom"><div class="label"><b>Loom</b><span>Object</span></div></article>
+<article class="work"><img src="images/Woodwork/02_stool.jpg" alt="Stool"><div class="label"><b>Stool</b><span>Object</span></div></article>
+</section>
+<div class="more"><a href="#works">See All Works →</a></div>
+<section class="about" id="about"><div class="kicker">About</div><div><p class="big">Beautiful, useful objects made through experiments with 3D printing.</p><p class="bodycopy">USAGI Craft Lab.は、3Dプリントの自由な表現を使って、日常の中で使える美しいものをつくるデザインラボです。素材、積層、色、G-codeなどを実験しながら、技術そのものではなく、そこから生まれる形や質感、使う楽しさを大切にしています。</p></div></section>
+<section class="contact" id="contact"><div class="kicker">Contact</div><div><p class="big">制作のご相談、展示・イベント、取材など、お気軽にご連絡ください。</p><div class="contact-links"><a href="#links"><span>Instagram / X</span><span>→</span></a></div></div></section>
+<section class="social" id="links"><a href="#">Shop</a><a href="#">Instagram</a><a href="#">X</a></section>
+</main>
+<footer><span>USAGI Craft Lab.</span><span>© USAGI Craft Lab. All rights reserved.</span></footer>
+</body></html>
