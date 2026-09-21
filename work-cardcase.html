@@ -62,7 +62,8 @@
       var vh=window.innerHeight||document.documentElement.clientHeight;
       var y=window.scrollY||window.pageYOffset;
       var distance=Math.max(vh*.6,title.offsetTop-vh*.2);
-      var p=Math.max(0,Math.min(1,y/distance));
+      var raw=Math.max(0,Math.min(1,y/distance));
+      var p=Math.max(0,Math.min(1,(raw-.18)/.82));
       var eased=p*p*(3-2*p);
       var maxGap=Math.min(260,Math.max(70,window.innerWidth*.18));
       title.style.setProperty('--title-gap',(maxGap*(1-eased)).toFixed(2)+'px');
