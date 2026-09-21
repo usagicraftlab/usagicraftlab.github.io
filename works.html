@@ -11,5 +11,14 @@
 .card img{transition:transform .55s cubic-bezier(.2,.7,.2,1),filter .55s}
 .card:hover img{transform:scale(1.065);filter:brightness(.94)}
 @media(max-width:700px){.section p{font-size:19px}.detailtitle h1{font-size:44px}.hero-title{font-size:48px}}
+
+/* Keep work labels visible above images on touch/mobile browsers */
+.card{position:relative;isolation:isolate}
+.card img{position:relative;z-index:0}
+.card .tag{display:block!important;visibility:visible!important;opacity:1!important;z-index:10;pointer-events:none;color:#111;background:rgba(255,255,255,.94)}
+@media(hover:none),(pointer:coarse),(max-width:700px){
+ .card .tag{position:absolute!important;right:14px!important;bottom:14px!important;top:auto!important;left:auto!important;transform:none!important}
+ .card:hover img{transform:none;filter:none}
+}
 </style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
 <div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="about.html">About</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="hero-title">Works</div><section class="cards"><a class="card" href="work-ukigara.html"><img src="images/ukigara/01.JPG" alt="UKIGARA"><span class="tag">UKIGARA →</span></a><a class="card" href="work-cardcase.html"><img src="images/cardcase/01.JPG" alt="Transparent Card Case"><span class="tag">Transparent Card Case →</span></a><a class="card" href="work-gunya.html"><img src="images/gunya/01.JPG" alt="Gunya Drawer"><span class="tag">Gunya Drawer →</span></a><a class="card" href="work-gradient.html"><img src="images/gradient/01.JPG" alt="Gradient"><span class="tag">Gradient →</span></a></section></main><footer>© USAGI Craft Lab.</footer><script>(()=>{const body=document.body,ov=document.querySelector('.overlay');document.querySelector('.hamb').onclick=()=>ov.classList.add('open');document.querySelector('.close').onclick=()=>ov.classList.remove('open');const set=l=>{body.classList.toggle('en',l==='en');localStorage.setItem('ucl-lang',l);document.querySelectorAll('[data-setlang]').forEach(b=>b.classList.toggle('active',b.dataset.setlang===l))};document.querySelectorAll('[data-setlang]').forEach(b=>b.onclick=()=>set(b.dataset.setlang));set(localStorage.getItem('ucl-lang')||'ja')})()</script></body></html>
