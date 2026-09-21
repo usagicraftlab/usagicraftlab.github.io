@@ -114,11 +114,83 @@ header .lang,header .lang button,header .hamb{line-height:1!important;margin:0!i
 
 /* Contact ends without a bottom divider */
 .home-contact{border-bottom:0!important}
+
+/* Home lower sections — unified vertical rhythm across desktop, tablet and mobile */
+.home-info{
+ display:block!important;
+ position:relative!important;
+ margin:0 4vw!important;
+ padding:0!important;
+ border:0!important;
+}
+.home-info::before{display:none!important}
+.home-info .info-panel,
+.home-contact{
+ display:block!important;
+ position:relative!important;
+ min-height:0!important;
+ margin:0!important;
+ padding:32px 0 56px!important;
+ border:0!important;
+ border-top:1px solid #aaa!important;
+}
+.home-info .home-about,
+.home-info .home-shop{
+ padding-left:0!important;
+ padding-right:0!important;
+ border-right:0!important;
+ border-bottom:0!important;
+}
+.home-info .home-about::after{display:none!important}
+.info-panel h2,.home-contact h2{
+ margin:0 0 28px!important;
+ padding:0!important;
+ font-size:13px!important;
+ font-weight:400!important;
+ line-height:1.2!important;
+}
+.info-copy,.home-contact p{
+ margin:0!important;
+ padding:0!important;
+ width:100%!important;
+ max-width:820px!important;
+}
+.info-copy p,.home-contact p{
+ font-size:clamp(17px,1.8vw,26px)!important;
+ line-height:1.55!important;
+}
+.home-about .info-arrow{
+ display:block!important;
+ width:100%!important;
+ margin:28px 0 0!important;
+ text-align:right!important;
+ font-size:13px!important;
+ line-height:1.2!important;
+}
+.home-contact{
+ margin:0 4vw 48px!important;
+ border-bottom:0!important;
+}
+@media(max-width:900px){
+ .home-info{margin:0 4vw!important}
+ .home-info .info-panel,.home-contact{padding:28px 0 48px!important}
+ .info-panel h2,.home-contact h2{margin-bottom:26px!important}
+ .home-about .info-arrow{margin-top:26px!important}
+ .home-contact{margin:0 4vw 40px!important}
+}
+@media(max-width:700px){
+ .home-info{margin:0 18px!important}
+ .home-info .info-panel,.home-contact{padding:26px 0 44px!important}
+ .info-panel h2,.home-contact h2{margin-bottom:24px!important}
+ .info-copy p,.home-contact p{font-size:19px!important}
+ .home-about .info-arrow{margin-top:24px!important}
+ .home-contact{margin:0 18px 36px!important}
+}
 </style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
 <div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="about.html">About</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><section class="cards home-works"><a class="card home-work" href="work-ukigara.html"><img src="images/ukigara/01.JPG" alt="UKIGARA"><span class="tag home-work-label">UKIGARA →</span></a><a class="card home-work" href="work-cardcase.html"><img src="images/cardcase/01.JPG" alt="Transparent Card Case"><span class="tag home-work-label">Transparent Card Case →</span></a><a class="card home-work" href="work-gunya.html"><img src="images/gunya/01.JPG" alt="Gunya Drawer"><span class="tag home-work-label">Gunya Drawer →</span></a><a class="card home-work" href="work-gradient.html"><img src="images/gradient/01.JPG" alt="Gradient"><span class="tag home-work-label">Gradient →</span></a></section><section class="home-info">
   <a class="home-about info-panel" href="about.html">
     <h2>About</h2>
-    <div class="info-copy"><p><span data-ja>USAGI Craft Lab.では、3Dプリントの新しい表現を探りながら、日常の中で使う美しい道具をつくっています。<br><br>素材や色、積層、造形方法を実験し、いつもの風景が少し特別になるような3Dプリント作品を制作・販売しています。</span><span data-en>Bringing small moments of surprise and joy to everyday life through the expressive freedom of 3D printing.</span></p><span class="info-arrow">More →</span></div>
+    <div class="info-copy"><p><span data-ja>USAGI Craft Lab.では、3Dプリントの新しい表現を探りながら、日常の中で使う美しい道具をつくっています。<br><br>素材や色、積層、造形方法を実験し、いつもの風景が少し特別になるような3Dプリント作品を制作・販売しています。</span><span data-en>USAGI Craft Lab. explores new forms of expression through 3D printing while creating beautiful tools for everyday life.<br><br>By experimenting with materials, color, layers and fabrication methods, we create and sell 3D-printed works that make familiar surroundings feel a little more special.</span></p><span class="info-arrow">More →</span></div>
   </a>
   <div class="home-shop info-panel">
     <h2>Shop</h2>
