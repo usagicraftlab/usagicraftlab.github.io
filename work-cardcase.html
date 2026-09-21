@@ -67,7 +67,8 @@
       var p=Math.max(0,Math.min(1,(raw-.18)/.82));
       var eased=p*p*(3-2*p);
       var cardWidth=card?card.offsetWidth:0;
-      title.style.setProperty('--case-shift',(-cardWidth*.78*eased).toFixed(2)+'px');
+      var wordGap=caseWord?parseFloat(getComputedStyle(caseWord).marginLeft)||0:0;
+      title.style.setProperty('--case-shift',(-(cardWidth+wordGap)*eased).toFixed(2)+'px');
       title.style.setProperty('--case-color','rgb('+Math.round(17+(176-17)*eased)+','+Math.round(17+(219-17)*eased)+','+Math.round(17+(238-17)*eased)+')');
       if(card){card.style.opacity=String(1-.8*eased);}
       ticking=false;
