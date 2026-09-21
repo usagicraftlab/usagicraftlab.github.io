@@ -28,15 +28,16 @@
  .section{padding-left:4vw!important;padding-right:4vw!important}
 }
 
-/* Scroll title effect: Transparent fades while Card Case stacks below */
-.scroll-title{position:relative;color:#111;white-space:nowrap}
-.scroll-title .title-transparent,.scroll-title .title-cardcase{display:inline-block;will-change:transform,opacity,color}
-.scroll-title .title-cardcase{transform-origin:left center}
-@media(max-width:700px){.scroll-title{white-space:normal}}
+/* Scroll title effect: the space before Card Case contracts */
+.detailtitle{overflow:hidden}
+.scroll-title{display:flex;flex-wrap:nowrap;align-items:baseline;color:#111;white-space:nowrap}
+.scroll-title .title-transparent,.scroll-title .title-cardcase{display:block;flex:0 0 auto;will-change:opacity,color}
+.scroll-title .title-gap{display:block;flex:0 0 var(--title-gap,clamp(70px,18vw,260px));height:1px;will-change:flex-basis}
+.scroll-title .title-cardcase{color:var(--card-color,#111)}
 
 @media(prefers-reduced-motion:reduce){.scroll-title{transform:none!important;opacity:1!important;background-position:0 0!important}}
 </style><style>.workgallery{padding:0 4vw 90px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.workgallery img{width:100%;height:55vw;max-height:760px;object-fit:cover;display:block}.workgallery .wide{grid-column:1/-1;height:auto;max-height:none}@media(max-width:700px){.workgallery{padding:0 0 60px;display:block}.workgallery img,.workgallery .wide{height:auto;max-height:none;margin-bottom:4px}}</style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
-<div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="about.html">About</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="detailhero"><img src="images/cardcase/01.JPG" alt="Transparent Card Case"></div><div class="detailtitle"><h1 class="scroll-title" aria-label="Transparent Card Case"><span class="title-transparent">Transparent</span> <span class="title-cardcase">Card Case</span></h1></div><div class="sections"><section class="section"><h2>Concept</h2><p><span data-ja>透明素材の表面に細かなテクスチャを重ね、見る角度によってガラスのように光が揺らぐ名刺入れ。名刺や内側のトレイの色が透けることで、使う状態によって印象が変わります。</span><span data-en>A transparent card case whose fine surface texture makes light shimmer like glass. The cards and inner tray show through, changing its appearance in use.</span></p></section><div class="workgallery"><img src="images/cardcase/02.JPG" alt=""><img src="images/cardcase/03.JPG" alt=""></div><section class="section"><h2>Technique</h2><p><span data-ja>透明フィラメントの積層と微細な表面パターンを組み合わせ、透明度そのものではなく光の屈折や揺らぎを表現として利用しています。</span><span data-en>Layered transparent filament and fine surface patterns use refraction and shimmer as part of the material expression.</span></p></section><div class="workgallery"><img class="wide" src="images/cardcase/04.JPG" alt=""></div></div><div class="sections"><section class="section"><h2>Shop</h2><p><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener"><span data-ja>価格を見る ↗</span><span data-en>View price ↗</span></a></p></section></div><div class="back"><a href="works.html">← Works</a></div></main><footer>© USAGI Craft Lab.</footer><script>
+<div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="about.html">About</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="detailhero"><img src="images/cardcase/01.JPG" alt="Transparent Card Case"></div><div class="detailtitle"><h1 class="scroll-title" aria-label="Transparent Card Case"><span class="title-transparent">Transparent</span><span class="title-gap" aria-hidden="true"></span><span class="title-cardcase">Card Case</span></h1></div><div class="sections"><section class="section"><h2>Concept</h2><p><span data-ja>透明素材の表面に細かなテクスチャを重ね、見る角度によってガラスのように光が揺らぐ名刺入れ。名刺や内側のトレイの色が透けることで、使う状態によって印象が変わります。</span><span data-en>A transparent card case whose fine surface texture makes light shimmer like glass. The cards and inner tray show through, changing its appearance in use.</span></p></section><div class="workgallery"><img src="images/cardcase/02.JPG" alt=""><img src="images/cardcase/03.JPG" alt=""></div><section class="section"><h2>Technique</h2><p><span data-ja>透明フィラメントの積層と微細な表面パターンを組み合わせ、透明度そのものではなく光の屈折や揺らぎを表現として利用しています。</span><span data-en>Layered transparent filament and fine surface patterns use refraction and shimmer as part of the material expression.</span></p></section><div class="workgallery"><img class="wide" src="images/cardcase/04.JPG" alt=""></div></div><div class="sections"><section class="section"><h2>Shop</h2><p><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener"><span data-ja>価格を見る ↗</span><span data-en>View price ↗</span></a></p></section></div><div class="back"><a href="works.html">← Works</a></div></main><footer>© USAGI Craft Lab.</footer><script>
 (function(){
   var body=document.body;
   var overlay=document.querySelector('.overlay');
@@ -56,7 +57,6 @@
   var title=document.querySelector('.scroll-title');
   if(title){
     var transparent=title.querySelector('.title-transparent');
-    var cardcase=title.querySelector('.title-cardcase');
     var ticking=false;
     function updateTitle(){
       var vh=window.innerHeight||document.documentElement.clientHeight;
@@ -64,15 +64,10 @@
       var distance=Math.max(vh*.6,title.offsetTop-vh*.2);
       var p=Math.max(0,Math.min(1,y/distance));
       var eased=p*p*(3-2*p);
-      var overlap=transparent?transparent.getBoundingClientRect().width:0;
-      if(transparent){
-        transparent.style.opacity=String(Math.max(0,1-p*1.3));
-        transparent.style.transform='translateX('+(-18*eased).toFixed(2)+'px) scaleX('+(1+.18*eased).toFixed(3)+')';
-      }
-      if(cardcase){
-        cardcase.style.color='rgb('+Math.round(17+(176-17)*eased)+','+Math.round(17+(219-17)*eased)+','+Math.round(17+(238-17)*eased)+')';
-        cardcase.style.transform='translate('+(-overlap*.72*eased).toFixed(2)+'px,'+(72*eased).toFixed(2)+'px) scale('+(1+.1*eased).toFixed(3)+')';
-      }
+      var maxGap=Math.min(260,Math.max(70,window.innerWidth*.18));
+      title.style.setProperty('--title-gap',(maxGap*(1-eased)).toFixed(2)+'px');
+      title.style.setProperty('--card-color','rgb('+Math.round(17+(176-17)*eased)+','+Math.round(17+(219-17)*eased)+','+Math.round(17+(238-17)*eased)+')');
+      if(transparent){transparent.style.opacity=String(Math.max(0,1-p*1.3));}
       ticking=false;
     }
     function requestUpdate(){if(!ticking){ticking=true;requestAnimationFrame(updateTitle);}}
