@@ -28,7 +28,7 @@
  .section{padding-left:4vw!important;padding-right:4vw!important}
 }
 
-/* Scroll title effect: letters float apart */
+/* Scroll title effect: restrained floating dispersion */
 .scroll-title{display:flex;flex-wrap:wrap;color:#111;transform-origin:left center}
 .scroll-title .title-letter{display:inline-block;white-space:pre;will-change:transform}
 .scroll-title .title-space{width:.22em}
@@ -79,10 +79,10 @@
       var eased=p*p*(3-2*p);
       letters.forEach(function(letter,index){
         var direction=seeded(index,1)>.5?1:-1;
-        var dx=direction*(45+seeded(index,2)*125)*eased+Math.sin(y*.018+index)*10*p;
-        var dy=(-35+seeded(index,3)*120)*eased+Math.cos(y*.014+index*.7)*8*p;
-        var rotate=(-18+seeded(index,4)*36)*eased;
-        var scale=.86+seeded(index,5)*.42*eased;
+        var dx=direction*(12+seeded(index,2)*38)*eased+Math.sin(y*.018+index)*4*p;
+        var dy=(-12+seeded(index,3)*34)*eased+Math.cos(y*.014+index*.7)*3*p;
+        var rotate=(-5+seeded(index,4)*10)*eased;
+        var scale=1+(-.04+seeded(index,5)*.1)*eased;
         letter.style.transform='translate3d('+dx.toFixed(2)+'px,'+dy.toFixed(2)+'px,0) rotate('+rotate.toFixed(2)+'deg) scale('+scale.toFixed(3)+')';
       });
       ticking=false;
