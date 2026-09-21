@@ -52,14 +52,18 @@
 
   var title=document.querySelector('.scroll-title');
   if(title){
+    var ticking=false;
     function updateTitle(){
-      var rect=title.getBoundingClientRect();
       var vh=window.innerHeight||document.documentElement.clientHeight;
-      var p=Math.max(0,Math.min(1,(vh*0.78-rect.top)/(vh*0.55)));
-      title.style.opacity=String(1-p);
+      var y=window.scrollY||window.pageYOffset;
+      var distance=Math.max(vh*.6,title.offsetTop-vh*.2);
+      var p=Math.max(0,Math.min(1,y/distance));
+      title.style.opacity=String(Math.max(0,1-p));
+      ticking=false;
     }
-    window.addEventListener('scroll',updateTitle,{passive:true});
-    window.addEventListener('resize',updateTitle);
+    function requestUpdate(){if(!ticking){ticking=true;requestAnimationFrame(updateTitle);}}
+    window.addEventListener('scroll',requestUpdate,{passive:true});
+    window.addEventListener('resize',requestUpdate);
     updateTitle();
   }
 })();
