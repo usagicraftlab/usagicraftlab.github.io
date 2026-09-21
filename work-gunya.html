@@ -28,9 +28,9 @@
  .section{padding-left:4vw!important;padding-right:4vw!important}
 }
 
-/* Scroll title effect: horizontal Gunya distortion */
-.scroll-title{display:flex;flex-wrap:wrap;color:#111;transform-origin:left center}
-.scroll-title .title-letter{display:inline-block;white-space:pre;transform-origin:center;will-change:transform}
+/* Scroll title effect: per-letter Gunya distortion */
+.scroll-title{transform-origin:left center;will-change:transform;display:flex;flex-wrap:wrap}
+.scroll-title .title-letter{display:inline-block;white-space:pre;will-change:transform}
 .scroll-title .title-space{width:.22em}
 
 @media(prefers-reduced-motion:reduce){.scroll-title{transform:none!important;opacity:1!important;background-position:0 0!important}}
@@ -67,18 +67,19 @@
       title.appendChild(span);
       letters.push(span);
     });
+    function progress(){
+      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var distance=Math.max(vh*.6,title.offsetTop-vh*.2);
+      return Math.max(0,Math.min(1,(window.scrollY||window.pageYOffset)/distance));
+    }
     var ticking=false;
     function updateTitle(){
-      var vh=window.innerHeight||document.documentElement.clientHeight;
+      var p=progress();
       var y=window.scrollY||window.pageYOffset;
-      var distance=Math.max(vh*.6,title.offsetTop-vh*.2);
-      var p=Math.max(0,Math.min(1,y/distance));
       letters.forEach(function(letter,index){
-        var phase=y*.022+index*.88;
-        var x=Math.sin(phase)*22*p;
-        var scaleX=1+(Math.cos(phase*.83)*.68+Math.sin(phase*1.37)*.26)*p;
-        var skewX=Math.sin(phase*.61)*24*p;
-        letter.style.transform='translateX('+x.toFixed(2)+'px) scaleX('+Math.max(.24,scaleX).toFixed(3)+') skewX('+skewX.toFixed(2)+'deg)';
+        var wave=Math.sin(y*.028+index*.82)*p;
+        var wave2=Math.cos(y*.019+index*1.13)*p;
+        letter.style.transform='translate('+((wave*7).toFixed(2))+'px,'+((wave2*10).toFixed(2))+'px) rotate('+((wave*5).toFixed(2))+'deg) skewY('+((wave2*4).toFixed(2))+'deg)';
       });
       ticking=false;
     }
