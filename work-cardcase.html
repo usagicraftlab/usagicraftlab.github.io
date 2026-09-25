@@ -32,7 +32,7 @@
 .detailtitle{overflow:hidden}
 .scroll-title{display:flex;flex-wrap:nowrap;align-items:baseline;color:#111;white-space:nowrap}
 .scroll-title .title-card,.scroll-title .title-case{display:block;flex:0 0 auto;will-change:opacity,color,transform}
-.scroll-title .title-card{position:relative;z-index:2}
+.scroll-title .title-card{position:relative;z-index:2;color:var(--card-color,#111)}
 .scroll-title .title-case{position:relative;z-index:1;margin-left:.22em;color:var(--case-color,#111);transform:translateX(var(--case-shift,0px))}
 
 @media(prefers-reduced-motion:reduce){.scroll-title{transform:none!important;opacity:1!important;background-position:0 0!important}}
@@ -73,7 +73,7 @@
       var wordGap=caseWord?parseFloat(getComputedStyle(caseWord).marginLeft)||0:0;
       title.style.setProperty('--case-shift',(-(cardWidth+wordGap)*eased).toFixed(2)+'px');
       title.style.setProperty('--case-color','rgb('+Math.round(17+(176-17)*eased)+','+Math.round(17+(219-17)*eased)+','+Math.round(17+(238-17)*eased)+')');
-      if(card){card.style.opacity=String(1-.8*eased);}
+      if(card){card.style.opacity=String(1-.8*eased);title.style.setProperty('--card-color','rgb('+Math.round(17+(255-17)*eased)+','+Math.round(17+(255-17)*eased)+','+Math.round(17+(255-17)*eased)+')');}
       ticking=false;
     }
     function requestUpdate(){if(!ticking){ticking=true;requestAnimationFrame(updateTitle);}}
