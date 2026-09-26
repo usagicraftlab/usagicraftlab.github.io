@@ -19,7 +19,8 @@
     .hud{position:absolute;left:4vw;right:4vw;bottom:max(28px,env(safe-area-inset-bottom));z-index:10;pointer-events:none;color:var(--fg,#111)}
     .tool-list{position:absolute;left:4vw;top:50%;z-index:12;transform:translateY(-50%);color:var(--fg,#111);font-size:13px;line-height:1;letter-spacing:.01em;pointer-events:none}
     .tool-list-inner{position:relative}
-    .tool-item{height:32px;display:flex;align-items:center;padding:0 10px;white-space:nowrap}
+    .tool-item{height:32px;display:flex;align-items:center;gap:8px;padding:0 10px;white-space:nowrap}
+    .tool-color{width:9px;height:9px;border-radius:50%;flex:0 0 auto;border:1px solid color-mix(in srgb,var(--fg,#111) 22%,transparent)}
     .tool-indicator{position:absolute;left:0;top:0;width:100%;height:32px;border:1px solid currentColor;pointer-events:none;transition:transform 1s cubic-bezier(.22,.61,.36,1)}
     .progress-wrap{height:28px;display:flex;align-items:center;pointer-events:auto;touch-action:pan-y}
     .progress{position:relative;width:100%;height:2px;background:color-mix(in srgb,var(--fg,#111) 22%,transparent);cursor:pointer}
@@ -131,9 +132,9 @@
       black:{bg:'#101010',fg:'#f1f1ee',scene:0x101010}
     };
     const tools={
-      1:{name:'red',css:'#d74435',three:0xd74435},
-      2:{name:'transparent',css:'rgba(220,226,224,.72)',three:0xdce2e0},
-      3:{name:'blue',css:'#315f9a',three:0x315f9a}
+      0:{name:'red',css:'#d74435',three:0xd74435},
+      1:{name:'white',css:'#f4f4f0',three:0xf4f4f0},
+      2:{name:'blue',css:'#315f9a',three:0x315f9a}
     };
 
     const scene=new THREE.Scene();
@@ -317,13 +318,18 @@
         const row=document.createElement('div');
         row.className='tool-item';
         row.dataset.tool=String(id);
-        row.textContent='Tool '+id+': '+tools[id].name;
+        const dot=document.createElement('span');
+        dot.className='tool-color';
+        dot.style.background=tools[id].css;
+        const label=document.createElement('span');
+        label.textContent='Tool '+id+': '+tools[id].name;
+        row.append(dot,label);
         toolListInner.appendChild(row);
       });
       toolIndicator=document.createElement('div');
       toolIndicator.className='tool-indicator';
       toolListInner.appendChild(toolIndicator);
-      activeTool=displayedTools[0]||1;
+      activeTool=displayedTools[0]??0;
       moveToolIndicator(activeTool,false);
     }
 
@@ -345,7 +351,7 @@
         if(target<=used+s.len)return s.tool;
         used+=s.len;
       }
-      return segments.at(-1)?.tool||1;
+      return segments.at(-1)?.tool??0;
     }
 
     function nextToolBoundary(fromProgress,toProgress){
@@ -373,7 +379,7 @@
         const y=1.4+l*1.65;
         const t=l/(layers-1);
         const radius=34+8*Math.sin(t*Math.PI)-3*t;
-        const tool=l<16?1:(l<29?2:1);
+        const tool=l<16?0:(l<29?1:0);
         for(let i=0;i<=points;i++){
           const a=(i/points)*Math.PI*2 + l*.055;
           const wobble=1+0.035*Math.sin(a*3+l*.22);
@@ -390,7 +396,7 @@
       const layers=34;
       for(let l=0;l<layers;l++){
         const y=1.5+l*1.8;
-        const tool=l<11?3:(l<23?1:2);
+        const tool=l<11?2:(l<23?0:1);
         const size=68-l*.35;
         const pts=[
           new THREE.Vector3(-size/2,y,-size/2),
@@ -451,7 +457,7 @@
 
     function renderProgress(){
       const target=progress*totalLength;
-      let used=0,currentTool=segments[0]?.tool||1,currentPoint=segments[0]?.a||new THREE.Vector3();
+      let used=0,currentTool=segments[0]?.tool??0,currentPoint=segments[0]?.a||new THREE.Vector3();
       const counts={};
       for(const id of displayedTools)counts[id]=0;
 
