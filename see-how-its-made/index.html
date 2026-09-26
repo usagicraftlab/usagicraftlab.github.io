@@ -197,10 +197,28 @@
     const printedLines=new Map();
     const printedLineMaterials=[];
 
+    function applyExtrusionShading(material){
+      const source='gl_FragColor = vec4( diffuseColor.rgb, alpha );';
+      const shaded=`
+        float uclCross = clamp( vUv.x, -1.0, 1.0 );
+        float uclRound = sqrt( max( 0.0, 1.0 - uclCross * uclCross ) );
+        float uclLight = 0.70 + 0.25 * uclRound;
+        float uclHighlight = exp( -pow( ( uclCross + 0.34 ) / 0.22, 2.0 ) ) * 0.12;
+        float uclShade = clamp( uclLight + uclHighlight, 0.62, 1.06 );
+        vec3 uclFilament = diffuseColor.rgb * uclShade;
+        gl_FragColor = vec4( uclFilament, alpha );
+      `;
+      if(!material.fragmentShader.includes(source))throw new Error('Line shader hook not found');
+      material.fragmentShader=material.fragmentShader.replace(source,shaded);
+      material.needsUpdate=true;
+      return material;
+    }
+
     const liveGeometry=new LineSegmentsGeometry();
     liveGeometry.setPositions([0,0,0,0,0,0]);
     let lineWidth=3.5;
     const liveMaterial=new LineMaterial({color:tools[0].three,linewidth:lineWidth,transparent:false,opacity:1,depthWrite:true});
+    applyExtrusionShading(liveMaterial);
     liveMaterial.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
     const liveLine=new LineSegments2(liveGeometry,liveMaterial);
     liveLine.frustumCulled=false;
@@ -523,6 +541,7 @@
           opacity:1,
           depthWrite:true
         });
+        applyExtrusionShading(material);
         material.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
         const line=new LineSegments2(geometry,material);
         line.frustumCulled=false;
