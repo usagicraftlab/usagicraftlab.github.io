@@ -19,7 +19,7 @@
     .menu-button span:before{position:absolute;top:-7px}
     .menu-button span:after{position:absolute;top:7px}
     .hud{position:absolute;left:4vw;right:4vw;bottom:max(28px,env(safe-area-inset-bottom));z-index:10;pointer-events:none;color:var(--fg,#111)}
-    .tool-list{position:absolute;left:4vw;top:50%;z-index:12;transform:translateY(-50%);color:var(--fg,#111);font-size:13px;line-height:1;letter-spacing:.01em;pointer-events:none}
+    .tool-list{position:absolute;left:4vw;bottom:calc(max(28px,env(safe-area-inset-bottom)) + 52px);z-index:12;color:var(--fg,#111);font-size:13px;line-height:1;letter-spacing:.01em;pointer-events:none}
     .tool-list-inner{position:relative}
     .tool-item{height:32px;display:flex;align-items:center;gap:8px;padding:0 10px;white-space:nowrap}
     .tool-color{width:9px;height:9px;border-radius:50%;flex:0 0 auto;border:1px solid color-mix(in srgb,var(--fg,#111) 22%,transparent)}
@@ -48,7 +48,7 @@
       .hud{left:18px;right:18px;bottom:max(20px,env(safe-area-inset-bottom))}
       .panel{padding:14px 18px 30px}
       .panel-body{margin-top:6vh}
-      .tool-list{left:18px;font-size:12px}
+      .tool-list{left:18px;bottom:calc(max(20px,env(safe-area-inset-bottom)) + 48px);font-size:12px}
       .tool-item,.tool-indicator{height:30px}
     }
     @media(prefers-reduced-motion:reduce){#app,.hint{transition:none}}
@@ -235,9 +235,9 @@
       const shaded=`
         float uclCross = clamp( vUv.x, -1.0, 1.0 );
         float uclRound = sqrt( max( 0.0, 1.0 - uclCross * uclCross ) );
-        float uclLight = 0.70 + 0.25 * uclRound;
-        float uclHighlight = exp( -pow( ( uclCross + 0.34 ) / 0.18, 2.0 ) ) * 0.16;
-        float uclShade = clamp( uclLight + uclHighlight, 0.62, 1.10 );
+        float uclLight = 0.54 + 0.43 * uclRound;
+        float uclHighlight = exp( -pow( ( uclCross + 0.34 ) / 0.17, 2.0 ) ) * 0.24;
+        float uclShade = clamp( uclLight + uclHighlight, 0.50, 1.16 );
         vec3 uclFilament = diffuseColor.rgb * uclShade;
         ${sparkle}
         gl_FragColor = vec4( uclFilament, alpha );
@@ -426,7 +426,7 @@
         dot.className='tool-color';
         dot.style.background=tools[id].css;
         const label=document.createElement('span');
-        label.textContent='Tool '+id+': '+tools[id].name;
+        label.textContent='Tool '+(id+1)+': '+tools[id].name;
         row.append(dot,label);
         toolListInner.appendChild(row);
       });
