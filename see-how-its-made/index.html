@@ -217,10 +217,6 @@
     stage.appendChild(renderer.domElement);
 
     const controls=new OrbitControls(camera,renderer.domElement);
-    if(embedGunya){
-      renderer.domElement.style.touchAction='none';
-      renderer.domElement.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
-    }
     controls.enableDamping=true;
     controls.enablePan=false;
     controls.enableZoom=false;
@@ -228,6 +224,51 @@
     controls.minPolarAngle=Math.PI*.16;
     controls.maxPolarAngle=Math.PI*.82;
     controls.addEventListener('start',()=>hint.classList.add('hide'));
+
+    if(embedGunya){
+      controls.enabled=false;
+      renderer.domElement.style.touchAction='none';
+
+      let dragPointer=null;
+      let dragX=0;
+
+      const rotateHorizontally=dx=>{
+        const offset=camera.position.clone().sub(controls.target);
+        const cos=Math.cos(-dx*.006);
+        const sin=Math.sin(-dx*.006);
+        const x=offset.x*cos-offset.z*sin;
+        const z=offset.x*sin+offset.z*cos;
+        camera.position.set(controls.target.x+x,camera.position.y,controls.target.z+z);
+        camera.lookAt(controls.target);
+      };
+
+      renderer.domElement.addEventListener('pointerdown',e=>{
+        if(e.pointerType==='mouse'&&e.button!==0)return;
+        dragPointer=e.pointerId;
+        dragX=e.clientX;
+        renderer.domElement.setPointerCapture(e.pointerId);
+        hint.classList.add('hide');
+        e.preventDefault();
+      },{passive:false});
+
+      renderer.domElement.addEventListener('pointermove',e=>{
+        if(e.pointerId!==dragPointer)return;
+        const dx=e.clientX-dragX;
+        dragX=e.clientX;
+        if(dx)rotateHorizontally(dx);
+        e.preventDefault();
+      },{passive:false});
+
+      const endHorizontalDrag=e=>{
+        if(e.pointerId!==dragPointer)return;
+        dragPointer=null;
+        if(renderer.domElement.hasPointerCapture(e.pointerId))renderer.domElement.releasePointerCapture(e.pointerId);
+        e.preventDefault();
+      };
+      renderer.domElement.addEventListener('pointerup',endHorizontalDrag,{passive:false});
+      renderer.domElement.addEventListener('pointercancel',endHorizontalDrag,{passive:false});
+      renderer.domElement.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+    }
 
     scene.add(new THREE.HemisphereLight(0xffffff,0x777777,2.1));
     const key=new THREE.DirectionalLight(0xffffff,2.4);
@@ -681,10 +722,7 @@
       else await buildPackedModel(name);
       if(embedGunya){
         camera.position.y+=24;
-        controls.update();
-        const fixedPolar=controls.getPolarAngle();
-        controls.minPolarAngle=fixedPolar;
-        controls.maxPolarAngle=fixedPolar;
+        camera.lookAt(controls.target);
       }
       progress=0;
       buildToolList();
@@ -746,7 +784,7 @@
       const w=stage.clientWidth,h=stage.clientHeight;
       renderer.setSize(w,h,false);
       camera.aspect=w/h;
-      camera.fov=embedGunya?(w<=700?29:27):(w<=700?36:32);
+      camera.fov=embedGunya?(w<=700?42:40):(w<=700?36:32);
       camera.updateProjectionMatrix();
       printedLineMaterials.forEach(m=>m.resolution.set(w,h));
       liveMaterial.resolution.set(w,h);
