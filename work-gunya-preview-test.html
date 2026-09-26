@@ -42,13 +42,13 @@
 html,body{overflow-x:hidden}
 .making-preview-section{padding-bottom:70px!important;overflow:visible!important}
 .section>.making-preview-wrap{position:relative!important;left:0!important;width:100vw!important;max-width:none!important;margin-left:-8vw!important;margin-right:0!important;padding:0!important}
-.making-preview-frame{display:block;width:100vw;height:112vh;min-height:900px;border:0;background:#fff}
+.making-preview-frame{display:block;width:100vw;height:88vh;min-height:680px;border:0;background:#fff}
 .making-scroll-catcher{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
 .making-scroll-catcher path{pointer-events:fill;touch-action:pan-y;fill:rgba(255,255,255,.001);fill-rule:evenodd}
 @media(max-width:700px){
  .making-preview-section{padding-bottom:44px!important}
  .section>.making-preview-wrap{margin-left:-18px!important}
- .making-preview-frame{height:108svh;min-height:760px}
+ .making-preview-frame{height:82svh;min-height:620px}
 }
 
 .making-preview-section + .back,.back{border-top:0!important}
@@ -81,8 +81,17 @@ html,body{overflow-x:hidden}
     catcher.setAttribute('viewBox','0 0 '+w+' '+h);
     var d='M0 0H'+w+'V'+h+'H0Z';
 
-    // Exact projected bed face: touch here passes through to 3D rotation.
-    d+=' M'+bedPoints.map(function(p){return (p.x*w).toFixed(1)+' '+(p.y*h).toFixed(1);}).join('L')+'Z';
+    // Slightly expand the projected bed face for reliable finger targeting.
+    var cx=0,cy=0;
+    bedPoints.forEach(function(p){cx+=p.x*w;cy+=p.y*h;});
+    cx/=bedPoints.length; cy/=bedPoints.length;
+    var pad=30;
+    var expanded=bedPoints.map(function(p){
+      var x=p.x*w,y=p.y*h,dx=x-cx,dy=y-cy;
+      var len=Math.hypot(dx,dy)||1;
+      return {x:x+dx/len*pad,y:y+dy/len*pad};
+    });
+    d+=' M'+expanded.map(function(p){return p.x.toFixed(1)+' '+p.y.toFixed(1);}).join('L')+'Z';
 
     // Keep the iframe controls directly interactive.
     var headTop=Math.max(0,window.innerHeight*.14-12);
