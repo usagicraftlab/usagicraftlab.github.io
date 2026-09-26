@@ -756,6 +756,8 @@
       if(name==='clock')buildClock();
       else await buildPackedModel(name);
       if(embedGunya){
+        const offset=camera.position.clone().sub(controls.target).multiplyScalar(.80);
+        camera.position.copy(controls.target).add(offset);
         camera.lookAt(controls.target);
         controls.update();
       }
