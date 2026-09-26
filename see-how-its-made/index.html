@@ -10,7 +10,7 @@
     html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f1ec;color:#111;font-family:Arial,"Helvetica Neue","Noto Sans JP",sans-serif}
     button,input{font:inherit}
     #app{position:relative;width:100%;height:100%;background:var(--bg,#f3f1ec);transition:background .25s ease}
-    #stage{position:absolute;inset:0;touch-action:none}
+    #stage{position:absolute;inset:0;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
     canvas{display:block;width:100%;height:100%}
     .menu-button{position:absolute;top:22px;right:4vw;z-index:20;width:44px;height:44px;border:0;background:transparent;color:var(--fg,#111);cursor:pointer;padding:0;display:grid;place-items:center}
     .menu-button span,.menu-button span:before,.menu-button span:after{content:"";display:block;width:24px;height:1px;background:currentColor;position:relative;transition:.2s}
@@ -316,6 +316,15 @@
       seeking=false;progressWrap.releasePointerCapture(e.pointerId);last=performance.now();
     });
     progressWrap.addEventListener('pointercancel',()=>{seeking=false;last=performance.now()});
+
+    // Prevent iOS double-tap zoom while keeping single-tap and drag interactions.
+    let lastTouchEnd=0;
+    document.addEventListener('touchend',e=>{
+      const now=Date.now();
+      if(now-lastTouchEnd<=300)e.preventDefault();
+      lastTouchEnd=now;
+    },{passive:false});
+    document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
 
     document.getElementById('menuButton').addEventListener('click',()=>panel.classList.add('open'));
     document.getElementById('closeButton').addEventListener('click',()=>panel.classList.remove('open'));
