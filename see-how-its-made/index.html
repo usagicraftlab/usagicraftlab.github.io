@@ -252,71 +252,23 @@
     bed.position.y=-0.55;
     scene.add(bed);
 
-    let publishInteractionMask=()=>{};
+    let publishBedHitArea=()=>{};
     let rotateEmbeddedView=(dx,dy)=>{};
     if(embedGunya){
+      const bedCorners=[
+        new THREE.Vector3(-105,.56,-105),
+        new THREE.Vector3(105,.56,-105),
+        new THREE.Vector3(105,.56,105),
+        new THREE.Vector3(-105,.56,105)
+      ];
       const spherical=new THREE.Spherical();
 
-      const boxCorners=box=>{
-        if(box.isEmpty())return [];
-        const mn=box.min,mx=box.max;
-        return [
-          new THREE.Vector3(mn.x,mn.y,mn.z),new THREE.Vector3(mx.x,mn.y,mn.z),
-          new THREE.Vector3(mx.x,mx.y,mn.z),new THREE.Vector3(mn.x,mx.y,mn.z),
-          new THREE.Vector3(mn.x,mn.y,mx.z),new THREE.Vector3(mx.x,mn.y,mx.z),
-          new THREE.Vector3(mx.x,mx.y,mx.z),new THREE.Vector3(mn.x,mx.y,mx.z)
-        ];
-      };
-
-      const hull2D=pts=>{
-        if(pts.length<=3)return pts;
-        const p=pts.slice().sort((a,b)=>a.x===b.x?a.y-b.y:a.x-b.x);
-        const cross=(o,a,b)=>(a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x);
-        const lower=[];
-        for(const q of p){
-          while(lower.length>=2&&cross(lower[lower.length-2],lower[lower.length-1],q)<=0)lower.pop();
-          lower.push(q);
-        }
-        const upper=[];
-        for(let i=p.length-1;i>=0;i--){
-          const q=p[i];
-          while(upper.length>=2&&cross(upper[upper.length-2],upper[upper.length-1],q)<=0)upper.pop();
-          upper.push(q);
-        }
-        lower.pop();upper.pop();
-        return lower.concat(upper);
-      };
-
-      publishInteractionMask=()=>{
-        const worldPoints=[];
-
-        // Bed volume.
-        worldPoints.push(...boxCorners(new THREE.Box3(
-          new THREE.Vector3(-105,-1.65,-105),
-          new THREE.Vector3(105,.55,105)
-        )));
-
-        // Printed object envelope.
-        if(!interactionModelBox.isEmpty())worldPoints.push(...boxCorners(interactionModelBox));
-
-        // Print-head envelope at its current world position.
-        if(headGroup.visible){
-          const hp=headGroup.position;
-          worldPoints.push(...boxCorners(new THREE.Box3(
-            new THREE.Vector3(hp.x-12,hp.y-18,hp.z-12),
-            new THREE.Vector3(hp.x+12,hp.y+8,hp.z+12)
-          )));
-        }
-
-        const projected=worldPoints.map(p=>{
+      publishBedHitArea=()=>{
+        const points=bedCorners.map(p=>{
           const q=p.clone().project(camera);
           return {x:(q.x+1)/2,y:(1-q.y)/2};
-        }).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
-
-        const hull=hull2D(projected);
-        if(hull.length>=3){
-          window.parent.postMessage({type:'ucl-interaction-mask',points:hull},location.origin);
-        }
+        });
+        window.parent.postMessage({type:'ucl-bed-hit-area',points},location.origin);
       };
 
       rotateEmbeddedView=(dx,dy)=>{
@@ -330,7 +282,7 @@
         offset.setFromSpherical(spherical);
         camera.position.copy(controls.target).add(offset);
         camera.lookAt(controls.target);
-        publishInteractionMask();
+        publishBedHitArea();
       };
     }
 
@@ -418,7 +370,6 @@
     scene.add(headGroup);
 
     let segments=[];
-    const interactionModelBox=new THREE.Box3();
     let timeline=[];
     let totalDuration=0;
     let progress=0;
@@ -497,17 +448,12 @@
 
     function movesToSegments(moves){
       segments=[];
-      interactionModelBox.makeEmpty();
       if(!moves.length)return;
       let prev=new THREE.Vector3(moves[0].x,moves[0].z,moves[0].y);
       for(let i=1;i<moves.length;i++){
         const m=moves[i];
         const p=new THREE.Vector3(m.x,m.z,m.y);
         pushSegment(prev,p,m.tool,{feed:m.feed,extrude:m.extrude});
-        if(m.extrude){
-          interactionModelBox.expandByPoint(prev);
-          interactionModelBox.expandByPoint(p);
-        }
         prev=p;
       }
     }
@@ -773,10 +719,6 @@
         if(window.__uclLastProgress!==rounded){
           window.__uclLastProgress=rounded;
           window.parent.postMessage({type:'ucl-preview-progress',progress:rounded/100},location.origin);
-          if(window.__uclLastMaskProgress===undefined||Math.abs(rounded-window.__uclLastMaskProgress)>=2){
-            window.__uclLastMaskProgress=rounded;
-            publishInteractionMask();
-          }
         }
       }
     }
@@ -822,7 +764,6 @@
         last=performance.now();
       }else if(d.type==='ucl-preview-head'){
         headGroup.visible=!!d.on;
-        publishInteractionMask();
       }else if(d.type==='ucl-preview-set-model' && ['gunyaBody','gunyaTrays'].includes(d.model)){
         if(d.model!==currentModel){
           try{await setModel(d.model)}catch(err){console.error(err)}
@@ -891,7 +832,7 @@
       camera.updateProjectionMatrix();
       printedLineMaterials.forEach(m=>m.resolution.set(w,h));
       liveMaterial.resolution.set(w,h);
-      if(embedGunya)requestAnimationFrame(publishInteractionMask);
+      if(embedGunya)requestAnimationFrame(publishBedHitArea);
     }
     window.addEventListener('resize',resize);
     resize();
@@ -904,7 +845,7 @@
       ?(allowedEmbedModels.includes(requestedModel)?requestedModel:'gunyaBody')
       :(Object.prototype.hasOwnProperty.call(modelConfigs,requestedModel)?requestedModel:'clock');
     await setModel(initialModel);
-    if(embedGunya)requestAnimationFrame(publishInteractionMask);
+    if(embedGunya)requestAnimationFrame(publishBedHitArea);
 
     function animate(now){
       requestAnimationFrame(animate);
