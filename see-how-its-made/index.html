@@ -78,7 +78,8 @@
       <div class="panel-body">
         <section class="group">
           <p class="group-label">Model</p>
-          <button class="choice active" type="button" data-model="vessel"><span>Vessel / test 01</span><span class="mark">●</span></button>
+          <button class="choice active" type="button" data-model="clock"><span>UKIGARA Clock</span><span class="mark">●</span></button>
+          <button class="choice" type="button" data-model="vessel"><span>Vessel / test 01</span><span class="mark">●</span></button>
           <button class="choice" type="button" data-model="grid"><span>Grid / test 02</span><span class="mark">●</span></button>
         </section>
         <section class="group">
@@ -115,6 +116,7 @@
     import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
     import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
     import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+    import { CLOCK_DATA_B64 } from './clock-data.js';
 
     const app=document.getElementById('app');
     const stage=document.getElementById('stage');
@@ -282,32 +284,66 @@
     scene.add(headGroup);
 
     let segments=[];
-    let cumulative=[];
-    let totalLength=0;
+    let timeline=[];
+    let totalDuration=0;
     let progress=0;
-    let currentModel='vessel';
+    let currentModel='clock';
     let seeking=false;
     let last=performance.now();
     let activeTool=null;
     let displayedTools=[];
     let toolIndicator=null;
-    let toolPauseUntil=0;
-    let pendingTool=null;
-    const printSpeed=22; // scene units per real second for the test path
+    const toolEndTimes=new Map();
 
-    function pushSegment(a,b,tool){
+    function pushSegment(a,b,tool,{feed=1200,extrude=true}={}){
       const len=a.distanceTo(b);
-      if(len<.001)return;
-      segments.push({a:a.clone(),b:b.clone(),tool,len});
-      totalLength+=len;
-      cumulative.push(totalLength);
+      if(len<.0001)return;
+      segments.push({a:a.clone(),b:b.clone(),tool,feed,extrude,len});
+    }
+
+    function decodeClockMoves(){
+      const binary=atob(CLOCK_DATA_B64);
+      const bytes=new Uint8Array(binary.length);
+      for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+      if(bytes[0]!==85||bytes[1]!==67||bytes[2]!==76||bytes[3]!==49)throw new Error('Invalid clock data');
+      const count=bytes[4]|(bytes[5]<<8)|(bytes[6]<<16)|(bytes[7]<<24);
+      const feeds=[1200,3600,4800];
+      let pos=8,px=0,py=0,pz=0;
+      function getVar(){
+        let q=0,shift=0,b;
+        do{b=bytes[pos++];q|=(b&127)<<shift;shift+=7;}while(b&128);
+        return (q&1)?-((q+1)>>1):(q>>1);
+      }
+      const moves=new Array(count);
+      for(let i=0;i<count;i++){
+        px+=getVar();py+=getVar();pz+=getVar();
+        const flag=bytes[pos++];
+        const feed=feeds[flag&3]||1200;
+        const extrude=(flag&4)!==0;
+        const tool=(flag>>3)&3;
+        moves[i]={x:px/1000,y:py/1000,z:pz/1000,feed,extrude,tool};
+      }
+      return moves;
+    }
+
+    function buildClock(){
+      segments=[];
+      const moves=decodeClockMoves();
+      if(!moves.length)return;
+      let prev=new THREE.Vector3(moves[0].x,moves[0].z,moves[0].y);
+      for(let i=1;i<moves.length;i++){
+        const m=moves[i];
+        const p=new THREE.Vector3(m.x,m.z,m.y);
+        pushSegment(prev,p,m.tool,{feed:m.feed,extrude:m.extrude});
+        prev=p;
+      }
+      controls.target.set(0,20,0);
+      camera.position.set(180,115,220);
     }
 
     function modelToolOrder(){
       const order=[];
-      for(const s of segments){
-        if(!order.includes(s.tool))order.push(s.tool);
-      }
+      for(const s of segments)if(!order.includes(s.tool))order.push(s.tool);
       return order;
     }
 
@@ -344,35 +380,8 @@
       activeTool=toolId;
     }
 
-    function toolAtProgress(p){
-      const target=p*totalLength;
-      let used=0;
-      for(const s of segments){
-        if(target<=used+s.len)return s.tool;
-        used+=s.len;
-      }
-      return segments.at(-1)?.tool??0;
-    }
-
-    function nextToolBoundary(fromProgress,toProgress){
-      if(toProgress<=fromProgress)return null;
-      const start=fromProgress*totalLength;
-      const end=toProgress*totalLength;
-      let used=0;
-      let previousTool=segments[0]?.tool||1;
-      for(const s of segments){
-        const segStart=used;
-        if(segStart>start && segStart<=end && s.tool!==previousTool){
-          return {progress:segStart/totalLength,tool:s.tool};
-        }
-        previousTool=s.tool;
-        used+=s.len;
-      }
-      return null;
-    }
-
     function buildVessel(){
-      segments=[];cumulative=[];totalLength=0;
+      segments=[];
       const layers=44,points=76;
       let previous=null;
       for(let l=0;l<layers;l++){
@@ -381,17 +390,19 @@
         const radius=34+8*Math.sin(t*Math.PI)-3*t;
         const tool=l<16?0:(l<29?1:0);
         for(let i=0;i<=points;i++){
-          const a=(i/points)*Math.PI*2 + l*.055;
+          const a=(i/points)*Math.PI*2+l*.055;
           const wobble=1+0.035*Math.sin(a*3+l*.22);
           const p=new THREE.Vector3(Math.cos(a)*radius*wobble,y,Math.sin(a)*radius*wobble);
-          if(previous)pushSegment(previous,p,tool);
+          if(previous)pushSegment(previous,p,tool,{feed:1200,extrude:true});
           previous=p;
         }
       }
+      controls.target.set(0,42,0);
+      camera.position.set(180,125,220);
     }
 
     function buildGrid(){
-      segments=[];cumulative=[];totalLength=0;
+      segments=[];
       let prev=null;
       const layers=34;
       for(let l=0;l<layers;l++){
@@ -405,13 +416,43 @@
           new THREE.Vector3(-size/2,y,size/2),
           new THREE.Vector3(-size/2,y,-size/2)
         ];
-        for(const p of pts){if(prev)pushSegment(prev,p,tool);prev=p}
+        for(const p of pts){if(prev)pushSegment(prev,p,tool,{feed:1200,extrude:true});prev=p}
         const stripes=7;
         for(let s=0;s<stripes;s++){
           const q=-size/2+(size/(stripes-1))*s;
           const a=l%2===0?new THREE.Vector3(-size/2,y,q):new THREE.Vector3(q,y,-size/2);
           const b=l%2===0?new THREE.Vector3(size/2,y,q):new THREE.Vector3(q,y,size/2);
-          pushSegment(prev,a,tool);pushSegment(a,b,tool);prev=b;
+          pushSegment(prev,a,tool,{feed:3600,extrude:false});
+          pushSegment(a,b,tool,{feed:1200,extrude:true});
+          prev=b;
+        }
+      }
+      controls.target.set(0,32,0);
+      camera.position.set(180,125,220);
+    }
+
+    function buildTimeline(){
+      timeline=[];
+      toolEndTimes.clear();
+      totalDuration=0;
+      if(!segments.length)return;
+      let previousTool=segments[0].tool;
+      let point=segments[0].a.clone();
+      for(const s of segments){
+        if(s.tool!==previousTool){
+          const pause={type:'pause',start:totalDuration,end:totalDuration+3,fromTool:previousTool,toTool:s.tool,point:point.clone()};
+          timeline.push(pause);
+          totalDuration+=3;
+          previousTool=s.tool;
+        }
+        const seconds=s.len/Math.max(.001,s.feed/60);
+        const move={type:'move',start:totalDuration,end:totalDuration+seconds,segment:s};
+        timeline.push(move);
+        totalDuration+=seconds;
+        point=s.b;
+        if(s.extrude){
+          if(!toolEndTimes.has(s.tool))toolEndTimes.set(s.tool,[]);
+          toolEndTimes.get(s.tool).push(move.end);
         }
       }
     }
@@ -430,6 +471,7 @@
       clearPrinted();
       const byTool=new Map();
       for(const s of segments){
+        if(!s.extrude)continue;
         if(!byTool.has(s.tool))byTool.set(s.tool,[]);
         const a=byTool.get(s.tool);
         a.push(s.a.x,s.a.y,s.a.z,s.b.x,s.b.y,s.b.z);
@@ -441,13 +483,12 @@
         const material=new LineMaterial({
           color:tools[toolId].three,
           linewidth:3.2,
-          transparent:toolId===2,
-          opacity:toolId===2?.62:1,
-          depthWrite:toolId!==2
+          transparent:false,
+          opacity:1,
+          depthWrite:true
         });
         material.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
         const line=new LineSegments2(geometry,material);
-        line.computeLineDistances();
         line.frustumCulled=false;
         printedGroup.add(line);
         printedLines.set(toolId,line);
@@ -455,30 +496,51 @@
       }
     }
 
-    function renderProgress(){
-      const target=progress*totalLength;
-      let used=0,currentTool=segments[0]?.tool??0,currentPoint=segments[0]?.a||new THREE.Vector3();
-      const counts={};
-      for(const id of displayedTools)counts[id]=0;
+    function upperBound(arr,value){
+      let lo=0,hi=arr.length;
+      while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<=value)lo=mid+1;else hi=mid}
+      return lo;
+    }
 
-      for(const s of segments){
-        if(used>=target)break;
-        const remain=target-used;
-        const part=Math.min(1,remain/s.len);
-        currentTool=s.tool;
+    function timelineEntryAt(time){
+      let lo=0,hi=timeline.length-1;
+      while(lo<hi){const mid=(lo+hi)>>1;if(timeline[mid].end<time)lo=mid+1;else hi=mid}
+      return timeline[lo];
+    }
+
+    function renderProgress(animateIndicator=true){
+      if(!timeline.length||!totalDuration)return;
+      const time=Math.max(0,Math.min(totalDuration,progress*totalDuration));
+      const entry=timelineEntryAt(time);
+      let currentPoint=segments[0].a.clone();
+      let desiredTool=segments[0].tool;
+      let animateTool=false;
+
+      if(entry.type==='pause'){
+        currentPoint=entry.point.clone();
+        const remaining=entry.end-time;
+        if(remaining<=1){
+          desiredTool=entry.toTool;
+          animateTool=animateIndicator;
+        }else{
+          desiredTool=entry.fromTool;
+        }
+      }else{
+        const s=entry.segment;
+        const span=Math.max(.0001,entry.end-entry.start);
+        const part=Math.max(0,Math.min(1,(time-entry.start)/span));
         currentPoint=s.a.clone().lerp(s.b,part);
-        if(part>=1)counts[s.tool]=(counts[s.tool]||0)+1;
-        used+=Math.min(s.len,remain);
-        if(part<1)break;
+        desiredTool=s.tool;
       }
 
+      if(desiredTool!==activeTool)moveToolIndicator(desiredTool,animateTool);
+
       for(const [toolId,line] of printedLines){
-        line.geometry.instanceCount=counts[toolId]||0;
+        line.geometry.instanceCount=upperBound(toolEndTimes.get(toolId)||[],time);
       }
 
       headGroup.position.copy(currentPoint);
       headGroup.position.y+=34;
-      if(!toolPauseUntil && currentTool!==activeTool)moveToolIndicator(currentTool,false);
       const pct=Math.max(0,Math.min(100,progress*100));
       progressFill.style.width=pct+'%';
       progressThumb.style.left=pct+'%';
@@ -486,13 +548,14 @@
 
     function setModel(name){
       currentModel=name;
-      name==='grid'?buildGrid():buildVessel();
+      if(name==='clock')buildClock();
+      else if(name==='grid')buildGrid();
+      else buildVessel();
       progress=0;
-      toolPauseUntil=0;
-      pendingTool=null;
       buildToolList();
+      buildTimeline();
       buildPrintedLines();
-      renderProgress();
+      renderProgress(false);
       document.querySelectorAll('[data-model]').forEach(b=>b.classList.toggle('active',b.dataset.model===name));
       panel.classList.remove('open');
       last=performance.now();
@@ -501,10 +564,7 @@
     function seekFromEvent(e){
       const bar=progressWrap.querySelector('.progress').getBoundingClientRect();
       progress=Math.max(0,Math.min(1,(e.clientX-bar.left)/bar.width));
-      toolPauseUntil=0;
-      pendingTool=null;
-      moveToolIndicator(toolAtProgress(progress),false);
-      renderProgress();
+      renderProgress(false);
       last=performance.now();
     }
     progressWrap.addEventListener('pointerdown',e=>{
@@ -550,42 +610,15 @@
     window.addEventListener('resize',resize);
     resize();
 
-    buildVessel();
-    buildToolList();
-    buildPrintedLines();
-    renderProgress();
+    setModel('clock');
 
     function animate(now){
       requestAnimationFrame(animate);
       const dt=Math.min(.05,(now-last)/1000);
       last=now;
-      if(!seeking && !panel.classList.contains('open') && progress<1 && totalLength>0){
-        if(toolPauseUntil){
-          const remaining=toolPauseUntil-now;
-          if(pendingTool!==null && remaining<=1000 && activeTool!==pendingTool){
-            moveToolIndicator(pendingTool,true);
-          }
-          if(now>=toolPauseUntil){
-            toolPauseUntil=0;
-            if(pendingTool!==null){
-              activeTool=pendingTool;
-              pendingTool=null;
-            }
-            last=now;
-          }
-        }else{
-          const nextProgress=Math.min(1,progress+(printSpeed*dt)/totalLength);
-          const boundary=nextToolBoundary(progress,nextProgress);
-          if(boundary){
-            progress=boundary.progress;
-            pendingTool=boundary.tool;
-            toolPauseUntil=now+3000;
-            renderProgress();
-          }else{
-            progress=nextProgress;
-            renderProgress();
-          }
-        }
+      if(!seeking && !panel.classList.contains('open') && progress<1 && totalDuration>0){
+        progress=Math.min(1,progress+dt/totalDuration);
+        renderProgress(true);
       }
       controls.update();
       renderer.render(scene,camera);
