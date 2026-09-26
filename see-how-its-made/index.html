@@ -734,7 +734,9 @@
 
     headGroup.visible=true;
 
-    await setModel('clock');
+    const requestedModel=new URLSearchParams(location.search).get('model');
+    const initialModel=Object.prototype.hasOwnProperty.call(modelConfigs,requestedModel)?requestedModel:'clock';
+    await setModel(initialModel);
 
     function animate(now){
       requestAnimationFrame(animate);
