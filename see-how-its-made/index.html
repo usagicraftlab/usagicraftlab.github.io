@@ -79,6 +79,27 @@
     body.embed-gunya .hud,
     body.embed-gunya .hint{display:none!important}
     body.embed-gunya #stage{inset:0;touch-action:none}
+
+    /* Self-contained Making block mode */
+    body.embed-block header,
+    body.embed-block .overlay,
+    body.embed-block .hint{display:none!important}
+    body.embed-block #stage{top:0;bottom:148px;touch-action:none}
+    body.embed-block .tool-list{
+      left:auto;right:18px;bottom:116px;font-size:12px;pointer-events:none
+    }
+    body.embed-block .hud{left:18px;right:18px;bottom:88px}
+    body.embed-block .model-list{
+      right:18px;bottom:46px;flex-direction:row;gap:12px;font-size:12px
+    }
+    body.embed-block .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
+    body.embed-block .model-choice{min-height:26px}
+    body.embed-block .head-control{
+      top:auto;left:auto;right:18px;bottom:6px;height:34px;justify-content:flex-end
+    }
+    body.embed-block .tool-list,
+    body.embed-block .model-list,
+    body.embed-block .hud{transform:none}
   </style>
 </head>
 <body>
@@ -159,8 +180,16 @@
     const app=document.getElementById('app');
     const params=new URLSearchParams(location.search);
     const embedGunya=params.get('embed')==='gunya';
+    const embedBlock=params.get('embed')==='block';
     if(embedGunya)document.body.classList.add('embed-gunya');
+    if(embedBlock)document.body.classList.add('embed-block');
     const stage=document.getElementById('stage');
+    if(embedBlock){
+      const bodyLabel=document.querySelector('[data-model="gunyaBody"] span:first-child');
+      const trayLabel=document.querySelector('[data-model="gunyaTrays"] span:first-child');
+      if(bodyLabel)bodyLabel.textContent='Body';
+      if(trayLabel)trayLabel.textContent='Tray';
+    }
     const toolListInner=document.getElementById('toolListInner');
     const progressWrap=document.getElementById('progressWrap');
     const progressFill=document.getElementById('progressFill');
@@ -841,7 +870,7 @@
 
     const requestedModel=params.get('model');
     const allowedEmbedModels=['gunyaBody','gunyaTrays'];
-    const initialModel=embedGunya
+    const initialModel=(embedGunya||embedBlock)
       ?(allowedEmbedModels.includes(requestedModel)?requestedModel:'gunyaBody')
       :(Object.prototype.hasOwnProperty.call(modelConfigs,requestedModel)?requestedModel:'clock');
     await setModel(initialModel);
