@@ -84,20 +84,26 @@
     body.embed-block header,
     body.embed-block .overlay,
     body.embed-block .hint{display:none!important}
-    body.embed-block #stage{top:0;bottom:148px;touch-action:none}
+    body.embed-block #stage{top:0;bottom:166px;touch-action:none}
     body.embed-block .tool-list{
-      left:auto;right:18px;bottom:116px;font-size:12px;pointer-events:none
+      left:auto;right:24px;bottom:122px;font-size:12px;pointer-events:none
     }
-    body.embed-block .hud{left:18px;right:18px;bottom:88px}
+    body.embed-block .hud{left:24px;right:24px;bottom:88px}
     body.embed-block .model-list{
-      right:18px;bottom:46px;flex-direction:row;gap:12px;font-size:12px
+      right:24px;bottom:46px;flex-direction:row;gap:12px;font-size:12px
     }
     body.embed-block .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
     body.embed-block .model-choice{min-height:26px}
     body.embed-block .model-choice .mark{display:none!important}
     body.embed-block .model-choice.active{text-decoration:underline}
     body.embed-block .head-control{
-      top:auto;left:auto;right:18px;bottom:6px;height:34px;justify-content:flex-end
+      top:auto;left:auto;right:24px;bottom:6px;height:34px;justify-content:flex-end
+    }
+    @media (min-width:701px) and (max-width:1180px){
+      body.embed-block .tool-list,
+      body.embed-block .model-list,
+      body.embed-block .head-control{right:32px}
+      body.embed-block .hud{left:32px;right:32px}
     }
     body.embed-block .tool-list,
     body.embed-block .model-list,
