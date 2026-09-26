@@ -71,25 +71,14 @@
     @media(prefers-reduced-motion:reduce){.hint{transition:none}}
 
     /* Embedded work-detail preview mode */
-    body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
-    body.embed-gunya #stage{touch-action:none;top:0;bottom:132px}
-    body.embed-gunya .tool-list{top:18px;left:4vw;bottom:auto}
-    body.embed-gunya .hud{top:auto;bottom:102px;left:4vw;right:4vw}
-    body.embed-gunya .model-list{
-      top:auto;right:4vw;bottom:54px;
-      flex-direction:row;align-items:center;gap:14px
-    }
-    body.embed-gunya .model-choice{min-height:28px}
-    body.embed-gunya .head-control{top:auto;bottom:10px;left:auto;right:4vw;justify-content:flex-end}
-    body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
-    body.embed-gunya .tool-list,body.embed-gunya .model-list,body.embed-gunya .hud{transform:none}
-    @media(max-width:700px){
-      body.embed-gunya #stage{bottom:126px}
-      body.embed-gunya .tool-list{top:14px;left:18px}
-      body.embed-gunya .hud{bottom:96px;left:18px;right:18px}
-      body.embed-gunya .model-list{right:18px;bottom:50px;gap:12px}
-      body.embed-gunya .head-control{bottom:8px;left:auto;right:18px}
-    }
+    body.embed-gunya header,
+    body.embed-gunya .overlay,
+    body.embed-gunya .head-control,
+    body.embed-gunya .tool-list,
+    body.embed-gunya .model-list,
+    body.embed-gunya .hud,
+    body.embed-gunya .hint{display:none!important}
+    body.embed-gunya #stage{inset:0;touch-action:none}
   </style>
 </head>
 <body>
@@ -264,6 +253,7 @@
     scene.add(bed);
 
     let publishBedHitArea=()=>{};
+    let rotateEmbeddedView=(dx,dy)=>{};
     if(embedGunya){
       const bedCorners=[
         new THREE.Vector3(-105,.56,-105),
@@ -271,6 +261,8 @@
         new THREE.Vector3(105,.56,105),
         new THREE.Vector3(-105,.56,105)
       ];
+      const spherical=new THREE.Spherical();
+
       publishBedHitArea=()=>{
         const points=bedCorners.map(p=>{
           const q=p.clone().project(camera);
@@ -279,63 +271,19 @@
         window.parent.postMessage({type:'ucl-bed-hit-area',points},location.origin);
       };
 
-      const raycaster=new THREE.Raycaster();
-      const pointerNdc=new THREE.Vector2();
-      const spherical=new THREE.Spherical();
-      let gesturePointer=null;
-      let gestureMode=null;
-      let lastX=0,lastY=0;
-
-      const hitsBed=(clientX,clientY)=>{
-        const rect=renderer.domElement.getBoundingClientRect();
-        pointerNdc.x=((clientX-rect.left)/rect.width)*2-1;
-        pointerNdc.y=-((clientY-rect.top)/rect.height)*2+1;
-        raycaster.setFromCamera(pointerNdc,camera);
-        return raycaster.intersectObject(bed,false).length>0;
+      rotateEmbeddedView=(dx,dy)=>{
+        const offset=camera.position.clone().sub(controls.target);
+        spherical.setFromVector3(offset);
+        spherical.theta-=dx*.006;
+        spherical.phi=Math.max(
+          controls.minPolarAngle,
+          Math.min(controls.maxPolarAngle,spherical.phi-dy*.006)
+        );
+        offset.setFromSpherical(spherical);
+        camera.position.copy(controls.target).add(offset);
+        camera.lookAt(controls.target);
+        publishBedHitArea();
       };
-
-      renderer.domElement.addEventListener('pointerdown',e=>{
-        if(e.pointerType==='mouse'&&e.button!==0)return;
-        gesturePointer=e.pointerId;
-        gestureMode=hitsBed(e.clientX,e.clientY)?'rotate':'scroll';
-        lastX=e.clientX;
-        lastY=e.clientY;
-        renderer.domElement.setPointerCapture(e.pointerId);
-        if(gestureMode==='rotate')hint.classList.add('hide');
-        e.preventDefault();
-      },{passive:false});
-
-      renderer.domElement.addEventListener('pointermove',e=>{
-        if(e.pointerId!==gesturePointer)return;
-        const dx=e.clientX-lastX;
-        const dy=e.clientY-lastY;
-        lastX=e.clientX;
-        lastY=e.clientY;
-
-        if(gestureMode==='rotate'){
-          const offset=camera.position.clone().sub(controls.target);
-          spherical.setFromVector3(offset);
-          spherical.theta-=dx*.006;
-          spherical.phi=Math.max(controls.minPolarAngle,Math.min(controls.maxPolarAngle,spherical.phi-dy*.006));
-          offset.setFromSpherical(spherical);
-          camera.position.copy(controls.target).add(offset);
-          camera.lookAt(controls.target);
-          publishBedHitArea();
-        }else if(gestureMode==='scroll'){
-          window.parent.postMessage({type:'ucl-preview-scroll',dy:-dy},location.origin);
-        }
-        e.preventDefault();
-      },{passive:false});
-
-      const endGesture=e=>{
-        if(e.pointerId!==gesturePointer)return;
-        gesturePointer=null;
-        gestureMode=null;
-        if(renderer.domElement.hasPointerCapture(e.pointerId))renderer.domElement.releasePointerCapture(e.pointerId);
-        e.preventDefault();
-      };
-      renderer.domElement.addEventListener('pointerup',endGesture,{passive:false});
-      renderer.domElement.addEventListener('pointercancel',endGesture,{passive:false});
     }
 
     const printedGroup=new THREE.Group();
@@ -766,6 +714,13 @@
       const pct=Math.max(0,Math.min(100,progress*100));
       progressFill.style.width=pct+'%';
       progressThumb.style.left=pct+'%';
+      if(embedGunya){
+        const rounded=Math.round(pct*10)/10;
+        if(window.__uclLastProgress!==rounded){
+          window.__uclLastProgress=rounded;
+          window.parent.postMessage({type:'ucl-preview-progress',progress:rounded/100},location.origin);
+        }
+      }
     }
 
     async function setModel(name){
@@ -789,8 +744,34 @@
       buildPrintedLines();
       renderProgress(false);
       document.querySelectorAll('[data-model]').forEach(b=>b.classList.toggle('active',b.dataset.model===name));
+      if(embedGunya){
+        const ids=modelToolOrder();
+        window.parent.postMessage({
+          type:'ucl-preview-model-state',
+          model:name,
+          tools:ids.map(id=>({name:'Tool '+(id+1)+': '+tools[id].name,color:tools[id].css}))
+        },location.origin);
+      }
       last=performance.now();
     }
+
+    window.addEventListener('message',async e=>{
+      if(!embedGunya||e.origin!==location.origin||!e.data)return;
+      const d=e.data;
+      if(d.type==='ucl-preview-seek'){
+        progress=Math.max(0,Math.min(1,Number(d.progress)||0));
+        renderProgress(false);
+        last=performance.now();
+      }else if(d.type==='ucl-preview-head'){
+        headGroup.visible=!!d.on;
+      }else if(d.type==='ucl-preview-set-model' && ['gunyaBody','gunyaTrays'].includes(d.model)){
+        if(d.model!==currentModel){
+          try{await setModel(d.model)}catch(err){console.error(err)}
+        }
+      }else if(d.type==='ucl-preview-rotate'){
+        rotateEmbeddedView(Number(d.dx)||0,Number(d.dy)||0);
+      }
+    });
 
     function seekFromEvent(e){
       const bar=progressWrap.querySelector('.progress').getBoundingClientRect();
@@ -798,12 +779,6 @@
       renderProgress(false);
       last=performance.now();
     }
-    window.addEventListener('message',e=>{
-      if(e.origin!==location.origin||!e.data||e.data.type!=='ucl-preview-seek')return;
-      progress=Math.max(0,Math.min(1,Number(e.data.progress)||0));
-      renderProgress(false);
-      last=performance.now();
-    });
     progressWrap.addEventListener('pointerdown',e=>{
       seeking=true;progressWrap.setPointerCapture(e.pointerId);seekFromEvent(e);
     });
