@@ -72,7 +72,7 @@
 
     /* Embedded work-detail preview mode */
     body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
-    body.embed-gunya .head-control{top:0;left:auto;right:4vw;justify-content:flex-end}
+    body.embed-gunya .head-control{top:14vh;left:auto;right:4vw;justify-content:flex-end}
     body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
     body.embed-gunya #stage{touch-action:none}
     body.embed-gunya .tool-list,body.embed-gunya .model-list,body.embed-gunya .hud{transform:none}
@@ -250,7 +250,22 @@
     bed.position.y=-0.55;
     scene.add(bed);
 
+    let publishBedHitArea=()=>{};
     if(embedGunya){
+      const bedCorners=[
+        new THREE.Vector3(-105,.56,-105),
+        new THREE.Vector3(105,.56,-105),
+        new THREE.Vector3(105,.56,105),
+        new THREE.Vector3(-105,.56,105)
+      ];
+      publishBedHitArea=()=>{
+        const points=bedCorners.map(p=>{
+          const q=p.clone().project(camera);
+          return {x:(q.x+1)/2,y:(1-q.y)/2};
+        });
+        window.parent.postMessage({type:'ucl-bed-hit-area',points},location.origin);
+      };
+
       const raycaster=new THREE.Raycaster();
       const pointerNdc=new THREE.Vector2();
       const spherical=new THREE.Spherical();
@@ -292,6 +307,7 @@
           offset.setFromSpherical(spherical);
           camera.position.copy(controls.target).add(offset);
           camera.lookAt(controls.target);
+          publishBedHitArea();
         }else if(gestureMode==='scroll'){
           window.parent.postMessage({type:'ucl-preview-scroll',dy:-dy},location.origin);
         }
@@ -803,6 +819,7 @@
       camera.updateProjectionMatrix();
       printedLineMaterials.forEach(m=>m.resolution.set(w,h));
       liveMaterial.resolution.set(w,h);
+      if(embedGunya)requestAnimationFrame(publishBedHitArea);
     }
     window.addEventListener('resize',resize);
     resize();
@@ -815,6 +832,7 @@
       ?(allowedEmbedModels.includes(requestedModel)?requestedModel:'gunyaBody')
       :(Object.prototype.hasOwnProperty.call(modelConfigs,requestedModel)?requestedModel:'clock');
     await setModel(initialModel);
+    if(embedGunya)requestAnimationFrame(publishBedHitArea);
 
     function animate(now){
       requestAnimationFrame(animate);
