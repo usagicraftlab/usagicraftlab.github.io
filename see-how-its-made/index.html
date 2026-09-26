@@ -529,6 +529,10 @@
       last=now;
       if(!seeking && !panel.classList.contains('open') && progress<1 && totalLength>0){
         if(toolPauseUntil){
+          const remaining=toolPauseUntil-now;
+          if(pendingTool!==null && remaining<=1000 && activeTool!==pendingTool){
+            moveToolIndicator(pendingTool,true);
+          }
           if(now>=toolPauseUntil){
             toolPauseUntil=0;
             if(pendingTool!==null){
@@ -543,8 +547,7 @@
           if(boundary){
             progress=boundary.progress;
             pendingTool=boundary.tool;
-            moveToolIndicator(boundary.tool,true);
-            toolPauseUntil=now+1000;
+            toolPauseUntil=now+3000;
             renderProgress();
           }else{
             progress=nextProgress;
