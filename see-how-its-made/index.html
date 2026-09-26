@@ -155,28 +155,95 @@
     scene.add(key);
 
     const bed=new THREE.Mesh(
-      new THREE.CylinderGeometry(104,104,2,96),
-      new THREE.MeshStandardMaterial({color:0xd8d6d0,roughness:.92,metalness:0})
+      new THREE.BoxGeometry(210,2.2,210),
+      new THREE.MeshPhysicalMaterial({
+        color:0xcfd2d0,
+        roughness:.58,
+        metalness:0,
+        transparent:true,
+        opacity:.34,
+        transmission:.08,
+        depthWrite:false
+      })
     );
-    bed.position.y=-2;
+    bed.position.y=-2.2;
     scene.add(bed);
 
     const printedGroup=new THREE.Group();
     scene.add(printedGroup);
 
     const headGroup=new THREE.Group();
-    const headBody=new THREE.Mesh(
-      new THREE.BoxGeometry(34,22,30),
-      new THREE.MeshStandardMaterial({color:0x292929,roughness:.65})
+
+    // Simplified Nextruder-inspired head, based on publicly available MK4S reference imagery.
+    const headBlack=new THREE.MeshStandardMaterial({color:0x202020,roughness:.72,metalness:.03});
+    const headDark=new THREE.MeshStandardMaterial({color:0x343434,roughness:.62,metalness:.06});
+    const headOrange=new THREE.MeshStandardMaterial({color:0xf06b28,roughness:.55,metalness:.02});
+    const headMetal=new THREE.MeshStandardMaterial({color:0xa7a7a4,roughness:.32,metalness:.68});
+    const brass=new THREE.MeshStandardMaterial({color:0xb68a54,roughness:.3,metalness:.7});
+
+    const carriage=new THREE.Mesh(new THREE.BoxGeometry(48,8,18),headDark);
+    carriage.position.set(0,38,2);
+
+    const motor=new THREE.Mesh(new THREE.BoxGeometry(31,29,31),headDark);
+    motor.position.set(0,31,3);
+
+    const mainHousing=new THREE.Mesh(new THREE.BoxGeometry(42,35,34),headBlack);
+    mainHousing.position.set(0,12,0);
+
+    const frontPlate=new THREE.Mesh(new THREE.BoxGeometry(37,27,4),headBlack);
+    frontPlate.position.set(0,13,19);
+
+    const fanRing=new THREE.Mesh(
+      new THREE.TorusGeometry(10.5,2.2,10,36),
+      headDark
     );
-    headBody.position.y=15;
+    fanRing.rotation.x=Math.PI/2;
+    fanRing.position.set(0,13,22);
+
+    const fanHub=new THREE.Mesh(new THREE.CylinderGeometry(3.4,3.4,3.2,24),headDark);
+    fanHub.rotation.x=Math.PI/2;
+    fanHub.position.set(0,13,22);
+
+    const fanBlades=new THREE.Group();
+    for(let i=0;i<5;i++){
+      const blade=new THREE.Mesh(new THREE.BoxGeometry(2.4,8,1.2),headDark);
+      blade.position.y=4.5;
+      blade.rotation.z=i*Math.PI*2/5+.22;
+      fanBlades.add(blade);
+    }
+    fanBlades.rotation.x=Math.PI/2;
+    fanBlades.position.set(0,13,22);
+
+    const orangeBand=new THREE.Mesh(new THREE.BoxGeometry(43,3.2,35),headOrange);
+    orangeBand.position.set(0,26.5,0);
+
+    const heatsink=new THREE.Mesh(new THREE.CylinderGeometry(6.5,6.5,13,28),headMetal);
+    heatsink.position.set(0,-8,0);
+
+    const heaterBlock=new THREE.Mesh(new THREE.BoxGeometry(10,6,10),headMetal);
+    heaterBlock.position.set(0,-17,0);
+
     const nozzle=new THREE.Mesh(
-      new THREE.ConeGeometry(4.2,12,24),
-      new THREE.MeshStandardMaterial({color:0x9c8461,roughness:.4,metalness:.55})
+      new THREE.ConeGeometry(2.5,10,24),
+      brass
     );
     nozzle.rotation.x=Math.PI;
-    nozzle.position.y=0;
-    headGroup.add(headBody,nozzle);
+    nozzle.position.y=-25;
+
+    const sideFanHousing=new THREE.Mesh(new THREE.BoxGeometry(13,24,26),headBlack);
+    sideFanHousing.position.set(27,9,-1);
+
+    const sideFan=new THREE.Mesh(new THREE.CylinderGeometry(8.2,8.2,3,28),headDark);
+    sideFan.rotation.z=Math.PI/2;
+    sideFan.position.set(34,10,-1);
+
+    const filamentGuide=new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,17,16),headOrange);
+    filamentGuide.position.set(0,51,3);
+
+    headGroup.add(
+      carriage,motor,mainHousing,frontPlate,fanRing,fanHub,fanBlades,
+      orangeBand,heatsink,heaterBlock,nozzle,sideFanHousing,sideFan,filamentGuide
+    );
     scene.add(headGroup);
 
     let segments=[];
@@ -283,7 +350,7 @@
         if(part<1)break;
       }
       headGroup.position.copy(currentPoint);
-      headGroup.position.y+=8;
+      headGroup.position.y+=25;
       const tool=tools[currentTool];
       toolText.textContent='Tool '+currentTool+': '+tool.name;
       toolDot.style.background=tool.css;
