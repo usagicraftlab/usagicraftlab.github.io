@@ -293,7 +293,7 @@
           camera.position.copy(controls.target).add(offset);
           camera.lookAt(controls.target);
         }else if(gestureMode==='scroll'){
-          try{window.parent.scrollBy(0,-dy)}catch(err){}
+          window.parent.postMessage({type:'ucl-preview-scroll',dy:-dy},location.origin);
         }
         e.preventDefault();
       },{passive:false});
