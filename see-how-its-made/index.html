@@ -169,12 +169,11 @@
       gunyaTrays:{
         data:'data-gunya-trays.txt',
         tools:{
-          0:{name:'1235 C',css:'#FFB81C',three:0xFFB81C,opacity:1},
-          1:{name:'Estate Blue',css:'#233658',three:0x233658,opacity:1}
+          0:{name:'1235 C',css:'#FFB81C',three:0xFFB81C,opacity:1}
         },targetY:16,camera:[190,110,235]
       },
       cardOuter:{
-        data:'data-card-outer.txt',
+        data:['data-card-outer-0.txt','data-card-outer-1.txt','data-card-outer-2.txt'],
         tools:{0:{name:'translucent PETG',css:'#DCE8EE',three:0xDCE8EE,opacity:.46}},
         targetY:48,camera:[170,105,215]
       },
@@ -352,7 +351,8 @@
     const printDataCache=new Map();
     async function decodePackedPrint(url){
       if(printDataCache.has(url))return printDataCache.get(url);
-      const encoded=(await (await fetch(url,{cache:'force-cache'})).text()).trim();
+      const urls=Array.isArray(url)?url:[url];
+      const encoded=(await Promise.all(urls.map(async part=>(await (await fetch(part,{cache:'force-cache'})).text()).trim()))).join('');
       const compressed=Uint8Array.from(atob(encoded),ch=>ch.charCodeAt(0));
       const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
       const bytes=new Uint8Array(await new Response(stream).arrayBuffer());
