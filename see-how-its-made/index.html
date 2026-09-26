@@ -28,7 +28,7 @@
     .progress-thumb{position:absolute;top:50%;left:0;width:12px;height:12px;border-radius:50%;background:var(--fg,#111);transform:translate(-50%,-50%);border:0}
     .panel{position:absolute;inset:0;z-index:30;background:var(--panel-bg,#3b3e42);color:var(--fg,#f2f2ef);display:none;padding:22px 4vw 36px;overflow:auto}
     .panel.open{display:block}
-    .panel-head{display:flex;justify-content:flex-end}
+    .panel-head{display:flex;justify-content:flex-end;position:sticky;top:0;z-index:4;background:var(--panel-bg,#3b3e42)}
     .close{width:44px;height:44px;border:0;background:transparent;color:inherit;font-size:30px;line-height:1;cursor:pointer;padding:0}
     .panel-body{max-width:680px;margin:8vh 0 0 auto;width:min(100%,680px)}
     .group{border-top:1px solid color-mix(in srgb,var(--fg,#111) 32%,transparent);padding:20px 0 34px}
@@ -39,9 +39,6 @@
     .toggle-row{display:flex;gap:8px;flex-wrap:wrap}
     .pill{min-height:44px;border:1px solid color-mix(in srgb,var(--fg,#111) 30%,transparent);background:transparent;color:inherit;padding:0 18px;border-radius:999px;cursor:pointer}
     .pill.active{background:var(--fg,#f2f2ef);color:var(--panel-bg,#3b3e42)}
-    .debug-row{display:grid;grid-template-columns:1fr 58px;gap:12px;align-items:center}
-    .debug-range{width:100%;accent-color:currentColor}
-    .debug-value{font-variant-numeric:tabular-nums;text-align:right;font-size:13px}
     .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.04em;opacity:.38;pointer-events:none;transition:opacity 1.2s ease;color:var(--fg,#111);white-space:nowrap}
     .hint.hide{opacity:0}
     @media(max-width:700px){
@@ -93,13 +90,6 @@
           <div class="toggle-row">
             <button class="pill active" type="button" data-head="on">On</button>
             <button class="pill" type="button" data-head="off">Off</button>
-          </div>
-        </section>
-        <section class="group">
-          <p class="group-label">Debug · Line width</p>
-          <div class="debug-row">
-            <input id="lineWidthDebug" class="debug-range" type="range" min="0.5" max="8" step="0.1" value="3.8" aria-label="Line width">
-            <output id="lineWidthValue" class="debug-value">3.8 px</output>
           </div>
         </section>
         <section class="group">
@@ -163,7 +153,7 @@
       },
       gunyaBody:{
         data:'data-gunya-body.txt',
-        tools:{0:{name:'navy',css:'#17283F',three:0x17283F,opacity:1}},
+        tools:{0:{name:'navy',css:'#223B59',three:0x223B59,opacity:1}},
         targetY:24,camera:[180,120,220]
       },
       gunyaTrays:{
@@ -174,12 +164,12 @@
       },
       cardOuter:{
         data:['data-card-outer-0.txt','data-card-outer-1.txt','data-card-outer-2.txt'],
-        tools:{0:{name:'Transparent',css:'#DCE8EE',three:0xDCE8EE,opacity:.46}},
+        tools:{0:{name:'Transparent',css:'#E5F0F5',three:0xE5F0F5,opacity:.56,sparkle:true}},
         targetY:48,camera:[170,105,215]
       },
       cardInner:{
         data:'data-card-inner.txt',
-        tools:{0:{name:'blue',css:'#B8CCE4',three:0xB8CCE4,opacity:1}},
+        tools:{0:{name:'blue',css:'#9FB9D8',three:0x9FB9D8,opacity:1}},
         targetY:30,camera:[175,110,220]
       }
     };
@@ -233,15 +223,21 @@
     const printedLines=new Map();
     const printedLineMaterials=[];
 
-    function applyExtrusionShading(material){
+    function applyExtrusionShading(material,style={}){
       const source='gl_FragColor = vec4( diffuseColor.rgb, alpha );';
+      const sparkle=style.sparkle ? `
+        float uclNoise = fract(sin(dot(vUv,vec2(91.7,173.3)))*43758.5453);
+        float uclSparkle = smoothstep(0.955,0.995,uclNoise) * (0.28 + 0.72*uclRound);
+        uclFilament += vec3(uclSparkle*0.72);
+      ` : '';
       const shaded=`
         float uclCross = clamp( vUv.x, -1.0, 1.0 );
         float uclRound = sqrt( max( 0.0, 1.0 - uclCross * uclCross ) );
         float uclLight = 0.70 + 0.25 * uclRound;
-        float uclHighlight = exp( -pow( ( uclCross + 0.34 ) / 0.22, 2.0 ) ) * 0.12;
-        float uclShade = clamp( uclLight + uclHighlight, 0.62, 1.06 );
+        float uclHighlight = exp( -pow( ( uclCross + 0.34 ) / 0.18, 2.0 ) ) * 0.16;
+        float uclShade = clamp( uclLight + uclHighlight, 0.62, 1.10 );
         vec3 uclFilament = diffuseColor.rgb * uclShade;
+        ${sparkle}
         gl_FragColor = vec4( uclFilament, alpha );
       `;
       if(!material.fragmentShader.includes(source))throw new Error('Line shader hook not found');
@@ -390,14 +386,23 @@
 
     async function buildPackedModel(name){
       const config=modelConfigs[name];
-      const moves=await decodePackedPrint(config.data);
+      let moves=(await decodePackedPrint(config.data)).map(m=>({...m}));
+      if(name==='gradient'){
+        const firstZ=Math.min(...moves.filter(m=>m.extrude).map(m=>m.z));
+        moves=moves.map(m=>(m.extrude&&Math.abs(m.z-firstZ)<.001)?{...m,tool:1}:m);
+      }
       movesToSegments(moves);
       controls.target.set(0,config.targetY,0);
       camera.position.set(...config.camera);
     }
 
     function buildClock(){
-      movesToSegments(decodeClockMoves());
+      const moves=decodeClockMoves().map(m=>({...m}));
+      if(moves.length){
+        const first=moves[0];
+        moves.unshift({...first,x:-125,feed:4800,extrude:false});
+      }
+      movesToSegments(moves);
       controls.target.set(0,modelConfigs.clock.targetY,0);
       camera.position.set(...modelConfigs.clock.camera);
     }
@@ -555,7 +560,7 @@
           opacity:tools[toolId].opacity??1,
           depthWrite:(tools[toolId].opacity??1)>=1
         });
-        applyExtrusionShading(material);
+        applyExtrusionShading(material,tools[toolId]);
         material.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
         const line=new LineSegments2(geometry,material);
         line.frustumCulled=false;
@@ -697,7 +702,9 @@
     function resize(){
       const w=stage.clientWidth,h=stage.clientHeight;
       renderer.setSize(w,h,false);
-      camera.aspect=w/h;camera.updateProjectionMatrix();
+      camera.aspect=w/h;
+      camera.fov=w<=700?36:32;
+      camera.updateProjectionMatrix();
       printedLineMaterials.forEach(m=>m.resolution.set(w,h));
       liveMaterial.resolution.set(w,h);
     }
@@ -705,17 +712,6 @@
     resize();
 
     headGroup.visible=true;
-
-    const lineWidthDebug=document.getElementById('lineWidthDebug');
-    const lineWidthValue=document.getElementById('lineWidthValue');
-    function applyLineWidth(value){
-      lineWidth=Math.round(Number(value)*10)/10;
-      lineWidthValue.value=lineWidth.toFixed(1)+' px';
-      liveMaterial.linewidth=lineWidth;
-      printedLineMaterials.forEach(m=>m.linewidth=lineWidth);
-    }
-    lineWidthDebug.addEventListener('input',e=>applyLineWidth(e.target.value));
-    applyLineWidth(lineWidthDebug.value);
 
     await setModel('clock');
 
