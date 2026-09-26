@@ -764,7 +764,7 @@
       if(embedGunya){
         const w=stage.clientWidth||window.innerWidth;
         if(w<=700){
-          const offset=camera.position.clone().sub(controls.target).multiplyScalar(.70);
+          const offset=camera.position.clone().sub(controls.target).multiplyScalar(.78);
           camera.position.copy(controls.target).add(offset);
         }
         camera.lookAt(controls.target);
@@ -785,6 +785,12 @@
       renderProgress(false);
       last=performance.now();
     }
+    window.addEventListener('message',e=>{
+      if(e.origin!==location.origin||!e.data||e.data.type!=='ucl-preview-seek')return;
+      progress=Math.max(0,Math.min(1,Number(e.data.progress)||0));
+      renderProgress(false);
+      last=performance.now();
+    });
     progressWrap.addEventListener('pointerdown',e=>{
       seeking=true;progressWrap.setPointerCapture(e.pointerId);seekFromEvent(e);
     });
@@ -831,7 +837,7 @@
       renderer.setSize(w,h,false);
       camera.aspect=w/h;
       if(embedGunya&&w<=700){
-        camera.fov=30;
+        camera.fov=32;
       }else{
         camera.fov=w<=700?36:32;
       }
