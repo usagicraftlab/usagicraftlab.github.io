@@ -182,75 +182,101 @@
 
     const headGroup=new THREE.Group();
 
-    // Simplified Nextruder-inspired head, based on publicly available MK4S reference imagery.
-    const headBlack=new THREE.MeshStandardMaterial({color:0x202020,roughness:.72,metalness:.03});
-    const headDark=new THREE.MeshStandardMaterial({color:0x343434,roughness:.62,metalness:.06});
-    const headOrange=new THREE.MeshStandardMaterial({color:0xf06b28,roughness:.55,metalness:.02});
-    const headMetal=new THREE.MeshStandardMaterial({color:0xa7a7a4,roughness:.32,metalness:.68});
-    const brass=new THREE.MeshStandardMaterial({color:0xb68a54,roughness:.3,metalness:.7});
+    // Lightweight MK4S / Nextruder-inspired silhouette.
+    // Deliberately simplified for mobile rendering, but shaped closer to the real assembly.
+    const headBlack=new THREE.MeshStandardMaterial({color:0x1d1d1d,roughness:.78,metalness:.02});
+    const headDark=new THREE.MeshStandardMaterial({color:0x343434,roughness:.64,metalness:.05});
+    const headOrange=new THREE.MeshStandardMaterial({color:0xf06b28,roughness:.58,metalness:.02});
+    const headMetal=new THREE.MeshStandardMaterial({color:0x9d9d99,roughness:.34,metalness:.64});
+    const brass=new THREE.MeshStandardMaterial({color:0xb8864b,roughness:.28,metalness:.72});
 
-    const carriage=new THREE.Mesh(new THREE.BoxGeometry(48,8,18),headDark);
-    carriage.position.set(0,38,2);
+    // X-carriage / rear mounting plate
+    const carriage=new THREE.Mesh(new THREE.BoxGeometry(58,9,17),headDark);
+    carriage.position.set(0,37,-6);
 
-    const motor=new THREE.Mesh(new THREE.BoxGeometry(31,29,31),headDark);
-    motor.position.set(0,31,3);
+    const rearPlate=new THREE.Mesh(new THREE.BoxGeometry(45,39,7),headDark);
+    rearPlate.position.set(0,17,-16);
 
-    const mainHousing=new THREE.Mesh(new THREE.BoxGeometry(42,35,34),headBlack);
-    mainHousing.position.set(0,12,0);
+    // Upper extruder / motor block
+    const motor=new THREE.Mesh(new THREE.BoxGeometry(31,28,31),headDark);
+    motor.position.set(-3,31,-1);
 
-    const frontPlate=new THREE.Mesh(new THREE.BoxGeometry(37,27,4),headBlack);
-    frontPlate.position.set(0,13,19);
+    // Main front housing: two blocks give a stepped Nextruder-like silhouette
+    const upperHousing=new THREE.Mesh(new THREE.BoxGeometry(43,20,34),headBlack);
+    upperHousing.position.set(0,20,1);
 
-    const fanRing=new THREE.Mesh(
-      new THREE.TorusGeometry(10.5,2.2,10,36),
-      headDark
-    );
+    const lowerHousing=new THREE.Mesh(new THREE.BoxGeometry(39,19,31),headBlack);
+    lowerHousing.position.set(0,2,1);
+
+    // Orange accent / latch area
+    const orangeCap=new THREE.Mesh(new THREE.BoxGeometry(44,4.5,35),headOrange);
+    orangeCap.position.set(0,29.5,1);
+
+    const orangeTab=new THREE.Mesh(new THREE.BoxGeometry(8,14,5),headOrange);
+    orangeTab.position.set(-17,20,19);
+
+    // Front fan opening
+    const fanBack=new THREE.Mesh(new THREE.CylinderGeometry(12.2,12.2,4,32),headDark);
+    fanBack.rotation.x=Math.PI/2;
+    fanBack.position.set(0,12,19);
+
+    const fanRing=new THREE.Mesh(new THREE.TorusGeometry(10.2,1.7,8,32),headBlack);
     fanRing.rotation.x=Math.PI/2;
-    fanRing.position.set(0,13,22);
+    fanRing.position.set(0,12,21.3);
 
-    const fanHub=new THREE.Mesh(new THREE.CylinderGeometry(3.4,3.4,3.2,24),headDark);
+    const fanHub=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.2,3.5,20),headBlack);
     fanHub.rotation.x=Math.PI/2;
-    fanHub.position.set(0,13,22);
+    fanHub.position.set(0,12,21.5);
 
     const fanBlades=new THREE.Group();
-    for(let i=0;i<5;i++){
-      const blade=new THREE.Mesh(new THREE.BoxGeometry(2.4,8,1.2),headDark);
-      blade.position.y=4.5;
-      blade.rotation.z=i*Math.PI*2/5+.22;
+    for(let i=0;i<7;i++){
+      const blade=new THREE.Mesh(new THREE.BoxGeometry(2.2,7.5,1),headBlack);
+      blade.position.y=5;
+      blade.rotation.z=i*Math.PI*2/7+.28;
       fanBlades.add(blade);
     }
     fanBlades.rotation.x=Math.PI/2;
-    fanBlades.position.set(0,13,22);
+    fanBlades.position.set(0,12,21.5);
 
-    const orangeBand=new THREE.Mesh(new THREE.BoxGeometry(43,3.2,35),headOrange);
-    orangeBand.position.set(0,26.5,0);
+    // Right-side part-cooling fan + duct, very characteristic in profile
+    const sideFanHousing=new THREE.Mesh(new THREE.BoxGeometry(14,26,27),headBlack);
+    sideFanHousing.position.set(27,8,-1);
 
-    const heatsink=new THREE.Mesh(new THREE.CylinderGeometry(6.5,6.5,13,28),headMetal);
-    heatsink.position.set(0,-8,0);
-
-    const heaterBlock=new THREE.Mesh(new THREE.BoxGeometry(10,6,10),headMetal);
-    heaterBlock.position.set(0,-17,0);
-
-    const nozzle=new THREE.Mesh(
-      new THREE.ConeGeometry(2.5,10,24),
-      brass
-    );
-    nozzle.rotation.x=Math.PI;
-    nozzle.position.y=-25;
-
-    const sideFanHousing=new THREE.Mesh(new THREE.BoxGeometry(13,24,26),headBlack);
-    sideFanHousing.position.set(27,9,-1);
-
-    const sideFan=new THREE.Mesh(new THREE.CylinderGeometry(8.2,8.2,3,28),headDark);
+    const sideFan=new THREE.Mesh(new THREE.CylinderGeometry(8.5,8.5,3.2,28),headDark);
     sideFan.rotation.z=Math.PI/2;
-    sideFan.position.set(34,10,-1);
+    sideFan.position.set(34.2,9,-1);
 
-    const filamentGuide=new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,17,16),headOrange);
-    filamentGuide.position.set(0,51,3);
+    const ductStem=new THREE.Mesh(new THREE.BoxGeometry(9,18,13),headBlack);
+    ductStem.position.set(23,-9,3);
+    ductStem.rotation.z=-0.18;
+
+    const ductTip=new THREE.Mesh(new THREE.BoxGeometry(13,8,16),headBlack);
+    ductTip.position.set(18,-20,4);
+    ductTip.rotation.z=-0.38;
+
+    // Hotend stack
+    const heatsink=new THREE.Mesh(new THREE.CylinderGeometry(6.2,6.2,14,20),headMetal);
+    heatsink.position.set(0,-10,0);
+
+    const heatbreak=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.2,8,16),headMetal);
+    heatbreak.position.set(0,-20,0);
+
+    const heaterBlock=new THREE.Mesh(new THREE.BoxGeometry(11,7,10),headMetal);
+    heaterBlock.position.set(0,-26,0);
+
+    const nozzle=new THREE.Mesh(new THREE.ConeGeometry(2.4,9,18),brass);
+    nozzle.rotation.x=Math.PI;
+    nozzle.position.y=-34;
+
+    // Small top filament guide
+    const filamentGuide=new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,15,14),headOrange);
+    filamentGuide.position.set(-3,51,-1);
 
     headGroup.add(
-      carriage,motor,mainHousing,frontPlate,fanRing,fanHub,fanBlades,
-      orangeBand,heatsink,heaterBlock,nozzle,sideFanHousing,sideFan,filamentGuide
+      carriage,rearPlate,motor,upperHousing,lowerHousing,orangeCap,orangeTab,
+      fanBack,fanRing,fanHub,fanBlades,
+      sideFanHousing,sideFan,ductStem,ductTip,
+      heatsink,heatbreak,heaterBlock,nozzle,filamentGuide
     );
     scene.add(headGroup);
 
@@ -445,7 +471,7 @@
       }
 
       headGroup.position.copy(currentPoint);
-      headGroup.position.y+=25;
+      headGroup.position.y+=34;
       if(!toolPauseUntil && currentTool!==activeTool)moveToolIndicator(currentTool,false);
       const pct=Math.max(0,Math.min(100,progress*100));
       progressFill.style.width=pct+'%';
