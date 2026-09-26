@@ -7,65 +7,117 @@
   <title>Print — USAGI Craft Lab.</title>
   <style>
     *{box-sizing:border-box}
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#303337;color:#f2f2ef;font-family:Arial,"Helvetica Neue","Noto Sans JP",sans-serif}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;color:#111;font-family:Arial,"Helvetica Neue","Noto Sans JP",sans-serif}
+    a{color:inherit;text-decoration:none}
     button,input{font:inherit}
-    html,body,#app,.panel,button{touch-action:manipulation}
+    button{touch-action:manipulation}
     .progress-wrap{touch-action:none}
-    #app{position:relative;width:100%;height:100%;background:var(--stage-bg,linear-gradient(to top,#2c2f32 0%,#555a5f 100%));transition:background .25s ease}
+    #app{position:relative;width:100%;height:100%;background:#fff}
     #stage{position:absolute;inset:0;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
     canvas{display:block;width:100%;height:100%}
-    .menu-button{position:absolute;top:10px;right:4vw;z-index:20;height:44px;border:0;background:none;color:var(--fg,#111);cursor:pointer;padding:0;font:inherit;font-size:24px;line-height:1}
-    .hud{position:absolute;left:4vw;right:4vw;bottom:max(28px,env(safe-area-inset-bottom));z-index:10;pointer-events:none;color:var(--fg,#111)}
-    .tool-list{position:absolute;left:4vw;bottom:calc(max(28px,env(safe-area-inset-bottom)) + 52px);z-index:12;color:var(--fg,#111);font-size:13px;line-height:1;letter-spacing:.01em;pointer-events:none}
+
+    header{height:64px;padding:0 4vw;display:flex;align-items:center;justify-content:space-between;position:absolute;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    .logo{font-weight:700}
+    .tools{display:flex;align-items:center;gap:20px}
+    .lang button,.hamb{border:0;background:none;padding:0;cursor:pointer;font:inherit;color:#111}
+    .lang{font-size:12px}
+    .lang button.active{text-decoration:underline}
+    .hamb{font-size:24px}
+    .overlay{position:fixed;inset:0;background:#fff;z-index:200;padding:22px 4vw;display:none;overflow:auto}
+    .overlay.open{display:block}
+    .menuhead{display:flex;justify-content:space-between}
+    .close{border:0;background:none;font-size:28px;padding:0;cursor:pointer;color:#111}
+    .menulinks{margin-top:12vh}
+    .menulinks a{display:block;font-size:clamp(42px,8vw,100px);line-height:1.16;letter-spacing:-.05em}
+    .external{margin-top:50px;display:flex;gap:25px;font-size:14px}
+
+    .head-control{position:absolute;top:64px;left:4vw;z-index:20;display:flex;align-items:center;gap:12px;height:48px;font-size:12px;color:#111}
+    .head-control-label{opacity:.55}
+    .head-toggle{border:0;background:none;padding:0;cursor:pointer;color:#111}
+    .head-toggle.active{text-decoration:underline}
+
+    .hud{position:absolute;left:4vw;right:4vw;bottom:max(28px,env(safe-area-inset-bottom));z-index:10;pointer-events:none;color:#111}
+    .tool-list{position:absolute;left:4vw;bottom:calc(max(28px,env(safe-area-inset-bottom)) + 52px);z-index:12;color:#111;font-size:13px;line-height:1;letter-spacing:.01em;pointer-events:none}
     .tool-list-inner{position:relative}
     .tool-item{height:32px;display:flex;align-items:center;gap:8px;padding:0 10px;white-space:nowrap}
-    .tool-color{width:9px;height:9px;border-radius:50%;flex:0 0 auto;border:1px solid color-mix(in srgb,var(--fg,#111) 22%,transparent)}
+    .tool-color{width:9px;height:9px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(17,17,17,.22)}
     .tool-indicator{position:absolute;left:0;top:0;width:100%;height:32px;border:1px solid currentColor;pointer-events:none;transition:transform 1s cubic-bezier(.22,.61,.36,1)}
     .progress-wrap{height:28px;display:flex;align-items:center;pointer-events:auto;touch-action:pan-y}
-    .progress{position:relative;width:100%;height:2px;background:color-mix(in srgb,var(--fg,#111) 22%,transparent);cursor:pointer}
-    .progress-fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--fg,#111)}
-    .progress-thumb{position:absolute;top:50%;left:0;width:12px;height:12px;border-radius:50%;background:var(--fg,#111);transform:translate(-50%,-50%);border:0}
-    .panel{position:absolute;inset:0;z-index:30;background:#fff;color:#111;display:none;padding:22px 4vw 36px;overflow:auto}
-    .panel.open{display:block}
-    .panel-head{height:42px;display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;z-index:4;background:#fff}
-    .panel-logo{font-weight:700;font-size:16px;line-height:28px}
-    .close{border:0;background:none;color:#111;font:inherit;font-size:28px;line-height:28px;cursor:pointer;padding:0}
-    .panel-body{max-width:none;margin:12vh 0 0;width:100%}
-    .group{border-top:1px solid #aaa;padding:20px 0 38px;display:grid;grid-template-columns:minmax(120px,1fr) 2fr;gap:5vw}
-    .group-label{font-size:13px;font-weight:400;letter-spacing:0;margin:5px 0 0;opacity:1}
-    .choice{display:flex;width:100%;min-height:48px;align-items:center;justify-content:space-between;border:0;background:transparent;color:#111;padding:0;text-align:left;cursor:pointer;font:inherit;font-size:clamp(28px,4.2vw,58px);line-height:1.12;letter-spacing:-.05em}
-    .choice .mark{font-size:11px;opacity:0}
-    .choice.active .mark{opacity:1}
-    .toggle-row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;padding-top:6px}
-    .pill{min-height:32px;border:0;border-bottom:1px solid transparent;background:none;color:#111;padding:0;cursor:pointer;font:inherit;font-size:14px}
-    .pill.active{border-bottom-color:#111}
-    .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.04em;opacity:.38;pointer-events:none;transition:opacity 1.2s ease;color:var(--fg,#111);white-space:nowrap}
+    .progress{position:relative;width:100%;height:2px;background:rgba(17,17,17,.22);cursor:pointer}
+    .progress-fill{position:absolute;inset:0 auto 0 0;width:0;background:#111}
+    .progress-thumb{position:absolute;top:50%;left:0;width:12px;height:12px;border-radius:50%;background:#111;transform:translate(-50%,-50%);border:0}
+
+    .model-list{position:absolute;right:4vw;bottom:calc(max(28px,env(safe-area-inset-bottom)) + 52px);z-index:15;display:flex;flex-direction:column;align-items:flex-end;font-size:13px;line-height:1.2}
+    .model-choice{min-height:30px;border:0;background:none;color:#111;padding:0;display:flex;align-items:center;gap:9px;cursor:pointer;text-align:right}
+    .model-choice .mark{font-size:9px;opacity:0}
+    .model-choice.active .mark{opacity:1}
+
+    .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.04em;opacity:.38;pointer-events:none;transition:opacity 1.2s ease;color:#111;white-space:nowrap}
     .hint.hide{opacity:0}
+    [data-en]{display:none}
+    body.en [data-ja]{display:none}
+    body.en [data-en]{display:initial}
+
     @media(max-width:700px){
-      .menu-button{top:8px;right:18px}
+      header{height:60px;padding:0 18px}
+      .overlay{padding:20px 18px}
+      .head-control{top:60px;left:18px;height:44px}
       .hud{left:18px;right:18px;bottom:max(20px,env(safe-area-inset-bottom))}
-      .panel{padding:20px 18px 30px}
-      .panel-body{margin-top:10vh}
-      .group{display:block;padding:18px 0 34px}
-      .group-label{margin:0 0 24px}
-      .choice{font-size:clamp(30px,9vw,42px);min-height:46px}
-      .toggle-row{gap:20px}
       .tool-list{left:18px;bottom:calc(max(20px,env(safe-area-inset-bottom)) + 48px);font-size:12px}
       .tool-item,.tool-indicator{height:30px}
+      .model-list{right:18px;bottom:calc(max(20px,env(safe-area-inset-bottom)) + 48px);font-size:12px}
+      .model-choice{min-height:28px}
     }
-    @media(prefers-reduced-motion:reduce){#app,.hint{transition:none}}
+    @media(prefers-reduced-motion:reduce){.hint{transition:none}}
   </style>
 </head>
 <body>
   <main id="app">
     <div id="stage" aria-label="3D printing simulation"></div>
 
-    <button class="menu-button" id="menuButton" type="button" aria-label="Open settings">☰</button>
+    <header>
+      <a class="logo" href="../index.html">USAGI Craft Lab.</a>
+      <div class="tools">
+        <div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div>
+        <button class="hamb" type="button" aria-label="Menu">☰</button>
+      </div>
+    </header>
+    <div class="overlay">
+      <div class="menuhead"><b>USAGI Craft Lab.</b><button class="close" type="button" aria-label="Close menu">×</button></div>
+      <nav class="menulinks">
+        <a href="../index.html">Home</a>
+        <a href="../works.html">Works</a>
+        <a href="../techniques.html">Approach</a>
+        <a href="./">Making</a>
+        <a href="../index.html#contact">Contact</a>
+      </nav>
+      <div class="external">
+        <a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a>
+        <a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a>
+        <a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a>
+      </div>
+    </div>
+
+    <div class="head-control" aria-label="Print head">
+      <span class="head-control-label">Print head</span>
+      <button class="head-toggle active" type="button" data-head="on">On</button>
+      <span>/</span>
+      <button class="head-toggle" type="button" data-head="off">Off</button>
+    </div>
 
     <div class="hint" id="hint">drag to change view</div>
 
     <div class="tool-list" id="toolList" aria-live="polite">
       <div class="tool-list-inner" id="toolListInner"></div>
+    </div>
+
+    <div class="model-list" aria-label="Model">
+      <button class="model-choice active" type="button" data-model="clock"><span>UKIGARA Clock</span><span class="mark">●</span></button>
+      <button class="model-choice" type="button" data-model="gradient"><span>Gradient</span><span class="mark">●</span></button>
+      <button class="model-choice" type="button" data-model="gunyaBody"><span>Gunya Drawer · Body</span><span class="mark">●</span></button>
+      <button class="model-choice" type="button" data-model="gunyaTrays"><span>Gunya Drawer · Tray</span><span class="mark">●</span></button>
+      <button class="model-choice" type="button" data-model="cardOuter"><span>Card Case · Outer</span><span class="mark">●</span></button>
+      <button class="model-choice" type="button" data-model="cardInner"><span>Card Case · Inner</span><span class="mark">●</span></button>
     </div>
 
     <div class="hud">
@@ -76,37 +128,6 @@
         </div>
       </div>
     </div>
-
-    <aside class="panel" id="panel" aria-label="Settings">
-      <div class="panel-head"><b class="panel-logo">USAGI Craft Lab.</b><button class="close" id="closeButton" type="button" aria-label="Close settings">×</button></div>
-      <div class="panel-body">
-        <section class="group">
-          <p class="group-label">Model</p>
-          <button class="choice active" type="button" data-model="clock"><span>UKIGARA Clock</span><span class="mark">●</span></button>
-          <button class="choice" type="button" data-model="gradient"><span>Gradient</span><span class="mark">●</span></button>
-          <button class="choice" type="button" data-model="gunyaBody"><span>Gunya Drawer · Body</span><span class="mark">●</span></button>
-          <button class="choice" type="button" data-model="gunyaTrays"><span>Gunya Drawer · Tray</span><span class="mark">●</span></button>
-          <button class="choice" type="button" data-model="cardOuter"><span>Card Case · Outer</span><span class="mark">●</span></button>
-          <button class="choice" type="button" data-model="cardInner"><span>Card Case · Inner</span><span class="mark">●</span></button>
-        </section>
-        <section class="group">
-          <p class="group-label">Print head</p>
-          <div class="toggle-row">
-            <button class="pill active" type="button" data-head="on">On</button>
-            <button class="pill" type="button" data-head="off">Off</button>
-          </div>
-        </section>
-        <section class="group">
-          <p class="group-label">Background</p>
-          <div class="toggle-row">
-            <button class="pill" type="button" data-bg="warm">Warm white</button>
-            <button class="pill active" type="button" data-bg="white">White</button>
-            <button class="pill" type="button" data-bg="gray">Gray</button>
-            <button class="pill" type="button" data-bg="black">Black</button>
-          </div>
-        </section>
-      </div>
-    </aside>
   </main>
 
   <script type="importmap">
@@ -131,15 +152,8 @@
     const progressWrap=document.getElementById('progressWrap');
     const progressFill=document.getElementById('progressFill');
     const progressThumb=document.getElementById('progressThumb');
-    const panel=document.getElementById('panel');
     const hint=document.getElementById('hint');
 
-    const themes={
-      warm:{stage:'linear-gradient(to top,#d2cec6 0%,#f3f1ec 100%)',panel:'#f3f1ec',fg:'#111111'},
-      white:{stage:'#ffffff',panel:'#ffffff',fg:'#111111'},
-      gray:{stage:'linear-gradient(to top,#2c2f32 0%,#555a5f 100%)',panel:'#3b3e42',fg:'#f2f2ef'},
-      black:{stage:'linear-gradient(to top,#080808 0%,#202225 100%)',panel:'#101010',fg:'#f1f1ee'}
-    };
     const modelConfigs={
       clock:{
         tools:{
@@ -181,9 +195,7 @@
 
     const scene=new THREE.Scene();
     scene.background=null;
-    app.style.setProperty('--stage-bg',themes.white.stage);
-    app.style.setProperty('--panel-bg',themes.white.panel);
-    app.style.setProperty('--fg',themes.white.fg);
+    app.style.background='#ffffff';
     const camera=new THREE.PerspectiveCamera(32,1,.1,2000);
     camera.position.set(180,125,220);
 
@@ -689,21 +701,24 @@
     document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
     document.addEventListener('gestureend',e=>e.preventDefault(),{passive:false});
 
-    document.getElementById('menuButton').addEventListener('click',()=>panel.classList.add('open'));
-    document.getElementById('closeButton').addEventListener('click',()=>panel.classList.remove('open'));
-    document.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',async()=>{try{await setModel(b.dataset.model)}catch(err){console.error(err)}}));
+    const overlay=document.querySelector('.overlay');
+    document.querySelector('.hamb').addEventListener('click',()=>overlay.classList.add('open'));
+    document.querySelector('.close').addEventListener('click',()=>overlay.classList.remove('open'));
+    const setLang=l=>{
+      document.body.classList.toggle('en',l==='en');
+      localStorage.setItem('ucl-lang',l);
+      document.querySelectorAll('[data-setlang]').forEach(b=>b.classList.toggle('active',b.dataset.setlang===l));
+    };
+    document.querySelectorAll('[data-setlang]').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.setlang)));
+    setLang(localStorage.getItem('ucl-lang')||'ja');
+
+    document.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',async()=>{
+      try{await setModel(b.dataset.model)}catch(err){console.error(err)}
+    }));
     document.querySelectorAll('[data-head]').forEach(b=>b.addEventListener('click',()=>{
       const on=b.dataset.head==='on';
       headGroup.visible=on;
       document.querySelectorAll('[data-head]').forEach(x=>x.classList.toggle('active',x===b));
-    }));
-    document.querySelectorAll('[data-bg]').forEach(b=>b.addEventListener('click',()=>{
-      const theme=themes[b.dataset.bg];
-      app.style.setProperty('--stage-bg',theme.stage);
-      app.style.setProperty('--panel-bg',theme.panel);
-      app.style.setProperty('--fg',theme.fg);
-      scene.background=null;
-      document.querySelectorAll('[data-bg]').forEach(x=>x.classList.toggle('active',x===b));
     }));
 
     function resize(){
@@ -726,7 +741,7 @@
       requestAnimationFrame(animate);
       const dt=Math.min(.05,(now-last)/1000);
       last=now;
-      if(!seeking && !panel.classList.contains('open') && progress<1 && totalDuration>0){
+      if(!seeking && !overlay.classList.contains('open') && progress<1 && totalDuration>0){
         progress=Math.min(1,progress+dt/totalDuration);
         renderProgress(true);
       }
