@@ -755,6 +755,10 @@
       liveLine.visible=false;
       if(name==='clock')buildClock();
       else await buildPackedModel(name);
+      if(embedGunya){
+        camera.lookAt(controls.target);
+        controls.update();
+      }
       progress=0;
       buildToolList();
       buildTimeline();
