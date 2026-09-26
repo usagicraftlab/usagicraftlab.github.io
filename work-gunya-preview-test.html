@@ -41,22 +41,79 @@
 /* Test: embedded Making preview */
 html,body{overflow-x:hidden}
 .making-preview-section{padding-bottom:70px!important;overflow:visible!important}
-.section>.making-preview-wrap{position:relative!important;left:0!important;width:100vw!important;max-width:none!important;margin-left:-8vw!important;margin-right:0!important;padding:0!important}
-.making-preview-frame{display:block;width:100vw;height:calc(100vw + 132px);min-height:0;border:0;background:#fff}
-.making-scroll-catcher{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
-.making-scroll-catcher path{pointer-events:fill;touch-action:pan-y;fill:rgba(255,255,255,.001);fill-rule:evenodd}
+.section>.making-preview-wrap{
+  position:relative!important;left:0!important;width:100vw!important;max-width:none!important;
+  margin-left:-8vw!important;margin-right:0!important;padding:0!important
+}
+.making-stage-wrap{position:relative;width:100vw;height:100vw;background:#fff}
+.making-preview-frame{display:block;width:100%;height:100%;border:0;background:#fff;pointer-events:none}
+.making-rotate-zone{
+  position:absolute;z-index:6;touch-action:none;background:transparent;
+  left:15%;top:14%;width:70%;height:72%
+}
+.making-parent-tools{
+  position:absolute;z-index:7;left:4vw;top:18px;pointer-events:none;
+  font-size:13px;line-height:1
+}
+.making-parent-tool{height:32px;display:flex;align-items:center;gap:8px;padding:0 10px}
+.making-parent-tool-dot{width:9px;height:9px;border-radius:50%;border:1px solid rgba(17,17,17,.22)}
+.making-parent-controls{padding:0 4vw 12px}
+.making-parent-progress{height:30px;display:flex;align-items:center;touch-action:none}
+.making-parent-progress-track{position:relative;width:100%;height:2px;background:rgba(17,17,17,.22)}
+.making-parent-progress-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#111}
+.making-parent-progress-thumb{
+  position:absolute;top:50%;left:0;width:12px;height:12px;border-radius:50%;
+  background:#111;transform:translate(-50%,-50%)
+}
+.making-parent-actions{display:flex;flex-direction:column;align-items:flex-end;gap:11px;margin-top:7px;font-size:12px}
+.making-parent-models,.making-parent-head{display:flex;align-items:center;gap:12px}
+.making-parent-actions button{border:0;background:none;padding:0;color:#111;font:inherit;cursor:pointer}
+.making-parent-actions button.active{text-decoration:underline}
+.making-parent-label{opacity:.55}
 @media(max-width:700px){
  .making-preview-section{padding-bottom:44px!important}
  .section>.making-preview-wrap{margin-left:-18px!important}
- .making-preview-frame{height:calc(100vw + 126px);min-height:0}
+ .making-stage-wrap{height:100vw}
+ .making-parent-tools{left:18px;top:14px;font-size:12px}
+ .making-parent-controls{padding-left:18px;padding-right:18px}
+ .making-rotate-zone{left:10%;top:10%;width:80%;height:78%}
 }
 @media(orientation:landscape){
- .making-preview-frame{height:calc(80vw + 132px)}
+ .making-stage-wrap{height:80vw}
 }
 
 .making-preview-section + .back,.back{border-top:0!important}
 </style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
-<div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="techniques.html">Approach</a><a href="see-how-its-made/">Making</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="detailhero"><img src="images/gunya/01.JPG" alt="Gunya Drawer"></div><div class="detailtitle"><h1 class="scroll-title">Gunya Drawer</h1></div><div class="sections"><section class="section"><h2>Concept</h2><p><span data-ja>まっすぐではない、少しぐにゃっとした輪郭をもつ小さな引き出し。収納用品でありながら、机の上に置いておきたくなるオブジェのような存在を目指しています。</span><span data-en>A small drawer with a softly distorted silhouette. It is storage, but also an object designed to remain visible on a desk.</span></p></section><section class="section"><h2>Technique</h2><p><span data-ja>3Dプリントならではの自由な輪郭を活かし、外形と引き出しが噛み合う形状を設計しています。</span><span data-en>The freedom of 3D printing is used to design a form in which the outer shell and drawer fit together.</span></p></section></div><div class="sections"><section class="section"><h2>Shop</h2><p><span data-ja><a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">オンラインショップ ↗</a>での販売を予定しています。</span><span data-en>Planned for sale through our <a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">Online Shop ↗</a>.</span></p></section><section class="section making-preview-section"><div class="making-preview-wrap"><iframe class="making-preview-frame" src="see-how-its-made/?embed=gunya&model=gunyaBody" title="Gunya Drawer making preview" loading="lazy"></iframe><svg class="making-scroll-catcher" aria-hidden="true"><path></path></svg></div></section></div><div class="back"><a href="works.html">← Works</a></div></main><footer>© USAGI Craft Lab. <span style="opacity:.42;margin-left:.6em">v2026.09.26.8</span></footer><script>
+<div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="techniques.html">Approach</a><a href="see-how-its-made/">Making</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="detailhero"><img src="images/gunya/01.JPG" alt="Gunya Drawer"></div><div class="detailtitle"><h1 class="scroll-title">Gunya Drawer</h1></div><div class="sections"><section class="section"><h2>Concept</h2><p><span data-ja>まっすぐではない、少しぐにゃっとした輪郭をもつ小さな引き出し。収納用品でありながら、机の上に置いておきたくなるオブジェのような存在を目指しています。</span><span data-en>A small drawer with a softly distorted silhouette. It is storage, but also an object designed to remain visible on a desk.</span></p></section><section class="section"><h2>Technique</h2><p><span data-ja>3Dプリントならではの自由な輪郭を活かし、外形と引き出しが噛み合う形状を設計しています。</span><span data-en>The freedom of 3D printing is used to design a form in which the outer shell and drawer fit together.</span></p></section></div><div class="sections"><section class="section"><h2>Shop</h2><p><span data-ja><a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">オンラインショップ ↗</a>での販売を予定しています。</span><span data-en>Planned for sale through our <a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">Online Shop ↗</a>.</span></p></section><section class="section making-preview-section"><div class="making-preview-wrap">
+  <div class="making-stage-wrap">
+    <iframe class="making-preview-frame" src="see-how-its-made/?embed=gunya&model=gunyaBody" title="Gunya Drawer making preview" loading="lazy"></iframe>
+    <div class="making-rotate-zone" aria-label="3D view rotation area"></div>
+    <div class="making-parent-tools" aria-live="polite">
+      <div class="making-parent-tool"><span class="making-parent-tool-dot" style="background:#223B59"></span><span>Tool 1: navy</span></div>
+    </div>
+  </div>
+  <div class="making-parent-controls">
+    <div class="making-parent-progress" aria-label="Print progress">
+      <div class="making-parent-progress-track">
+        <div class="making-parent-progress-fill"></div>
+        <div class="making-parent-progress-thumb"></div>
+      </div>
+    </div>
+    <div class="making-parent-actions">
+      <div class="making-parent-models">
+        <button type="button" class="active" data-parent-model="gunyaBody">Body</button>
+        <span>/</span>
+        <button type="button" data-parent-model="gunyaTrays">Tray</button>
+      </div>
+      <div class="making-parent-head">
+        <span class="making-parent-label">Print head</span>
+        <button type="button" class="active" data-parent-head="on">On</button>
+        <span>/</span>
+        <button type="button" data-parent-head="off">Off</button>
+      </div>
+    </div>
+  </div>
+</div></section></div><div class="back"><a href="works.html">← Works</a></div></main><footer>© USAGI Craft Lab. <span style="opacity:.42;margin-left:.6em">v2026.09.26.9</span></footer><script>
 (function(){
   var body=document.body;
   var overlay=document.querySelector('.overlay');
@@ -74,91 +131,114 @@ html,body{overflow-x:hidden}
   setLang(saved);
 
   var previewWrap=document.querySelector('.making-preview-wrap');
-  var catcher=previewWrap&&previewWrap.querySelector('.making-scroll-catcher');
-  var catcherPath=catcher&&catcher.querySelector('path');
   var previewFrame=previewWrap&&previewWrap.querySelector('.making-preview-frame');
+  var rotateZone=previewWrap&&previewWrap.querySelector('.making-rotate-zone');
+  var progressTrack=previewWrap&&previewWrap.querySelector('.making-parent-progress-track');
+  var progressFill=previewWrap&&previewWrap.querySelector('.making-parent-progress-fill');
+  var progressThumb=previewWrap&&previewWrap.querySelector('.making-parent-progress-thumb');
+  var toolsBox=previewWrap&&previewWrap.querySelector('.making-parent-tools');
   var bedPoints=null;
 
-  function updatePreviewTouchMask(){
-    if(!previewWrap||!catcher||!catcherPath||!bedPoints)return;
-    var w=previewWrap.clientWidth,h=previewWrap.clientHeight;
-    catcher.setAttribute('viewBox','0 0 '+w+' '+h);
-    var d='M0 0H'+w+'V'+h+'H0Z';
+  function sendPreview(data){
+    if(previewFrame&&previewFrame.contentWindow)previewFrame.contentWindow.postMessage(data,location.origin);
+  }
 
-    // Slightly expand the projected bed face for reliable finger targeting.
-    var cx=0,cy=0;
-    var controlStrip=(window.innerWidth<=700?126:132);
-    var stageH=Math.max(1,h-controlStrip);
-    bedPoints.forEach(function(p){cx+=p.x*w;cy+=p.y*stageH;});
-    cx/=bedPoints.length; cy/=bedPoints.length;
-    var pad=90;
-    var expanded=bedPoints.map(function(p){
-      var x=p.x*w,y=p.y*stageH,dx=x-cx,dy=y-cy;
-      var len=Math.hypot(dx,dy)||1;
-      return {x:x+dx/len*pad,y:y+dy/len*pad};
-    });
-    d+=' M'+expanded.map(function(p){return p.x.toFixed(1)+' '+p.y.toFixed(1);}).join('L')+'Z';
-
-    // Top model/tool UI and the full lower control strip stay directly interactive.
-    d+=' M0 0H'+Math.min(w*.48,340)+'V110H0Z';
-    d+=' M0 '+stageH+'H'+w+'V'+h+'H0Z';
-    catcherPath.setAttribute('d',d);
+  function updateRotateZone(){
+    if(!rotateZone||!bedPoints||!previewWrap)return;
+    var stage=previewWrap.querySelector('.making-stage-wrap');
+    if(!stage)return;
+    var w=stage.clientWidth,h=stage.clientHeight;
+    var xs=bedPoints.map(function(p){return p.x*w;});
+    var ys=bedPoints.map(function(p){return p.y*h;});
+    var pad=Math.min(100,Math.max(60,w*.09));
+    var left=Math.max(0,Math.min.apply(null,xs)-pad);
+    var right=Math.min(w,Math.max.apply(null,xs)+pad);
+    var top=Math.max(0,Math.min.apply(null,ys)-pad);
+    var bottom=Math.min(h,Math.max.apply(null,ys)+pad);
+    rotateZone.style.left=left+'px';
+    rotateZone.style.top=top+'px';
+    rotateZone.style.width=(right-left)+'px';
+    rotateZone.style.height=(bottom-top)+'px';
   }
 
   window.addEventListener('message',function(e){
     if(e.origin!==location.origin||!e.data)return;
-    if(e.data.type==='ucl-bed-hit-area'&&Array.isArray(e.data.points)&&e.data.points.length===4){
+    if(e.data.type==='ucl-bed-hit-area'&&Array.isArray(e.data.points)){
       bedPoints=e.data.points;
-      updatePreviewTouchMask();
+      updateRotateZone();
+    }else if(e.data.type==='ucl-preview-progress'){
+      var p=Math.max(0,Math.min(1,Number(e.data.progress)||0));
+      if(progressFill)progressFill.style.width=(p*100)+'%';
+      if(progressThumb)progressThumb.style.left=(p*100)+'%';
+    }else if(e.data.type==='ucl-preview-model-state'){
+      document.querySelectorAll('[data-parent-model]').forEach(function(b){
+        b.classList.toggle('active',b.getAttribute('data-parent-model')===e.data.model);
+      });
+      if(toolsBox&&Array.isArray(e.data.tools)){
+        toolsBox.innerHTML='';
+        e.data.tools.forEach(function(t){
+          var row=document.createElement('div');row.className='making-parent-tool';
+          var dot=document.createElement('span');dot.className='making-parent-tool-dot';dot.style.background=t.color;
+          var label=document.createElement('span');label.textContent=t.name;
+          row.append(dot,label);toolsBox.appendChild(row);
+        });
+      }
     }
   });
-  window.addEventListener('resize',updatePreviewTouchMask);
+  window.addEventListener('resize',updateRotateZone);
 
-  // iPad/Safari: handle background scrolling in the parent document instead
-  // of relying on scroll gestures crossing the iframe boundary.
-  if(catcherPath){
-    var dragMode=null,lastY=0;
-    function previewPoint(e){
-      var r=previewWrap.getBoundingClientRect();
-      return {x:e.clientX-r.left,y:e.clientY-r.top,w:r.width,h:r.height};
-    }
-    function beginPreviewDrag(e){
-      var p=previewPoint(e);
-      dragMode='scroll';
-      lastY=e.clientY;
-      e.preventDefault();
-    }
-    function movePreviewDrag(e){
-      if(!dragMode)return;
-      var p=previewPoint(e);
-      window.scrollBy(0,lastY-e.clientY);
-      lastY=e.clientY;
-      e.preventDefault();
-    }
-    function endPreviewDrag(e){dragMode=null;if(e)e.preventDefault();}
+  document.querySelectorAll('[data-parent-model]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var model=b.getAttribute('data-parent-model');
+      sendPreview({type:'ucl-preview-set-model',model:model});
+      document.querySelectorAll('[data-parent-model]').forEach(function(x){x.classList.toggle('active',x===b);});
+    });
+  });
+  document.querySelectorAll('[data-parent-head]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var on=b.getAttribute('data-parent-head')==='on';
+      sendPreview({type:'ucl-preview-head',on:on});
+      document.querySelectorAll('[data-parent-head]').forEach(function(x){x.classList.toggle('active',x===b);});
+    });
+  });
 
-    catcherPath.addEventListener('pointerdown',beginPreviewDrag,{passive:false});
-    catcherPath.addEventListener('pointermove',movePreviewDrag,{passive:false});
-    catcherPath.addEventListener('pointerup',endPreviewDrag,{passive:false});
-    catcherPath.addEventListener('pointercancel',endPreviewDrag,{passive:false});
+  function seekAt(clientX){
+    if(!progressTrack)return;
+    var r=progressTrack.getBoundingClientRect();
+    var p=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+    if(progressFill)progressFill.style.width=(p*100)+'%';
+    if(progressThumb)progressThumb.style.left=(p*100)+'%';
+    sendPreview({type:'ucl-preview-seek',progress:p});
+  }
+  if(progressTrack){
+    var seeking=false;
+    progressTrack.addEventListener('pointerdown',function(e){
+      seeking=true;progressTrack.setPointerCapture(e.pointerId);seekAt(e.clientX);e.preventDefault();
+    },{passive:false});
+    progressTrack.addEventListener('pointermove',function(e){if(seeking){seekAt(e.clientX);e.preventDefault();}},{passive:false});
+    progressTrack.addEventListener('pointerup',function(e){
+      seeking=false;if(progressTrack.hasPointerCapture(e.pointerId))progressTrack.releasePointerCapture(e.pointerId);e.preventDefault();
+    },{passive:false});
+    progressTrack.addEventListener('pointercancel',function(){seeking=false;});
+  }
 
-    var touchY=0,touchMode=null;
-    catcherPath.addEventListener('touchstart',function(e){
-      if(!e.touches.length)return;
-      var t=e.touches[0],r=previewWrap.getBoundingClientRect();
-      touchMode='scroll';
-      touchY=t.clientY;
+  if(rotateZone){
+    var rotating=false,lastX=0,lastY=0;
+    rotateZone.addEventListener('pointerdown',function(e){
+      rotating=true;lastX=e.clientX;lastY=e.clientY;
+      rotateZone.setPointerCapture(e.pointerId);e.preventDefault();
+    },{passive:false});
+    rotateZone.addEventListener('pointermove',function(e){
+      if(!rotating)return;
+      var dx=e.clientX-lastX,dy=e.clientY-lastY;
+      lastX=e.clientX;lastY=e.clientY;
+      sendPreview({type:'ucl-preview-rotate',dx:dx,dy:dy});
       e.preventDefault();
     },{passive:false});
-    catcherPath.addEventListener('touchmove',function(e){
-      if(!e.touches.length||!touchMode)return;
-      var t=e.touches[0],r=previewWrap.getBoundingClientRect();
-      window.scrollBy(0,touchY-t.clientY);
-      touchY=t.clientY;
-      e.preventDefault();
+    rotateZone.addEventListener('pointerup',function(e){
+      rotating=false;if(rotateZone.hasPointerCapture(e.pointerId))rotateZone.releasePointerCapture(e.pointerId);e.preventDefault();
     },{passive:false});
-    catcherPath.addEventListener('touchend',function(e){touchMode=null;e.preventDefault();},{passive:false});
-    catcherPath.addEventListener('touchcancel',function(e){touchMode=null;e.preventDefault();},{passive:false});
+    rotateZone.addEventListener('pointercancel',function(){rotating=false;});
   }
 
   var title=document.querySelector('.scroll-title');
