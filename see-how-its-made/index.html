@@ -101,8 +101,14 @@
       height:26px;
       line-height:26px
     }
-    body.embed-block .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
-    body.embed-block .model-list [data-model="gunyaBody"]::after{
+    body.embed-block .model-list .model-choice{display:none}
+    body.embed-block.embed-group-gunya .model-list [data-model="gunyaBody"],
+    body.embed-block.embed-group-gunya .model-list [data-model="gunyaTrays"],
+    body.embed-block.embed-group-card .model-list [data-model="cardOuter"],
+    body.embed-block.embed-group-card .model-list [data-model="cardInner"]{display:flex}
+    body.embed-block.embed-single .model-list{display:none!important}
+    body.embed-block.embed-group-gunya .model-list [data-model="gunyaBody"]::after,
+    body.embed-block.embed-group-card .model-list [data-model="cardOuter"]::after{
       content:'/';
       display:inline-block;
       margin-left:12px;
@@ -110,7 +116,6 @@
     }
     body.embed-block .model-choice{
       min-height:26px;
-      display:flex;
       align-items:center;
       line-height:26px
     }
@@ -206,11 +211,24 @@
     if(embedGunya)document.body.classList.add('embed-gunya');
     if(embedBlock)document.body.classList.add('embed-block');
     const stage=document.getElementById('stage');
+    const requestedBlockModel=params.get('model');
     if(embedBlock){
       const bodyLabel=document.querySelector('[data-model="gunyaBody"] span:first-child');
       const trayLabel=document.querySelector('[data-model="gunyaTrays"] span:first-child');
+      const outerLabel=document.querySelector('[data-model="cardOuter"] span:first-child');
+      const innerLabel=document.querySelector('[data-model="cardInner"] span:first-child');
       if(bodyLabel)bodyLabel.textContent='Body';
       if(trayLabel)trayLabel.textContent='Tray';
+      if(outerLabel)outerLabel.textContent='Outer';
+      if(innerLabel)innerLabel.textContent='Inner';
+
+      if(requestedBlockModel==='gunyaBody'||requestedBlockModel==='gunyaTrays'){
+        document.body.classList.add('embed-group-gunya');
+      }else if(requestedBlockModel==='cardOuter'||requestedBlockModel==='cardInner'){
+        document.body.classList.add('embed-group-card');
+      }else{
+        document.body.classList.add('embed-single');
+      }
     }
     const toolListInner=document.getElementById('toolListInner');
     const progressWrap=document.getElementById('progressWrap');
@@ -892,7 +910,7 @@
 
     const requestedModel=params.get('model');
     const allowedEmbedModels=['gunyaBody','gunyaTrays'];
-    const initialModel=(embedGunya||embedBlock)
+    const initialModel=embedGunya
       ?(allowedEmbedModels.includes(requestedModel)?requestedModel:'gunyaBody')
       :(Object.prototype.hasOwnProperty.call(modelConfigs,requestedModel)?requestedModel:'clock');
     await setModel(initialModel);
