@@ -71,6 +71,7 @@
     @media(prefers-reduced-motion:reduce){.hint{transition:none}}
 
     /* Embedded work-detail preview mode */
+    body.embed-gunya{touch-action:none;overscroll-behavior:none}
     body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
     body.embed-gunya .head-control{top:0;left:auto;right:4vw;justify-content:flex-end}
     body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
@@ -216,7 +217,10 @@
     stage.appendChild(renderer.domElement);
 
     const controls=new OrbitControls(camera,renderer.domElement);
-    if(embedGunya)renderer.domElement.style.touchAction='none';
+    if(embedGunya){
+      renderer.domElement.style.touchAction='none';
+      renderer.domElement.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+    }
     controls.enableDamping=true;
     controls.enablePan=false;
     controls.enableZoom=false;
@@ -675,6 +679,13 @@
       liveLine.visible=false;
       if(name==='clock')buildClock();
       else await buildPackedModel(name);
+      if(embedGunya){
+        camera.position.y+=24;
+        controls.update();
+        const fixedPolar=controls.getPolarAngle();
+        controls.minPolarAngle=fixedPolar;
+        controls.maxPolarAngle=fixedPolar;
+      }
       progress=0;
       buildToolList();
       buildTimeline();
@@ -751,10 +762,6 @@
       ?(allowedEmbedModels.includes(requestedModel)?requestedModel:'gunyaBody')
       :(Object.prototype.hasOwnProperty.call(modelConfigs,requestedModel)?requestedModel:'clock');
     await setModel(initialModel);
-    if(embedGunya){
-      camera.position.y+=24;
-      controls.update();
-    }
 
     function animate(now){
       requestAnimationFrame(animate);
