@@ -457,8 +457,14 @@
       const urls=Array.isArray(url)?url:[url];
       const encoded=(await Promise.all(urls.map(async part=>(await (await fetch(part,{cache:'no-store'})).text()).trim()))).join('');
       const compressed=Uint8Array.from(atob(encoded),ch=>ch.charCodeAt(0));
-      const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
-      const bytes=new Uint8Array(await new Response(stream).arrayBuffer());
+      let bytes;
+      if(typeof DecompressionStream!=='undefined'){
+        const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
+        bytes=new Uint8Array(await new Response(stream).arrayBuffer());
+      }else{
+        const mod=await import('https://cdn.jsdelivr.net/npm/pako@2.1.0/+esm');
+        bytes=mod.ungzip(compressed);
+      }
       if(bytes[0]!==85||bytes[1]!==67||bytes[2]!==76||bytes[3]!==50)throw new Error('Invalid print data');
       const count=bytes[4]|(bytes[5]<<8)|(bytes[6]<<16)|(bytes[7]<<24);
       let pos=8,px=0,py=0,pz=0;
@@ -756,7 +762,9 @@
       if(name==='clock')buildClock();
       else await buildPackedModel(name);
       if(embedGunya){
-        const offset=camera.position.clone().sub(controls.target).multiplyScalar(.80);
+        const w=stage.clientWidth||window.innerWidth;
+        const scale=w<=700?.70:(w<=1100?.80:.95);
+        const offset=camera.position.clone().sub(controls.target).multiplyScalar(scale);
         camera.position.copy(controls.target).add(offset);
         camera.lookAt(controls.target);
         controls.update();
@@ -821,7 +829,11 @@
       const w=stage.clientWidth,h=stage.clientHeight;
       renderer.setSize(w,h,false);
       camera.aspect=w/h;
-      camera.fov=w<=700?36:32;
+      if(embedGunya){
+        camera.fov=w<=700?30:(w<=1100?32:40);
+      }else{
+        camera.fov=w<=700?36:32;
+      }
       camera.updateProjectionMatrix();
       printedLineMaterials.forEach(m=>m.resolution.set(w,h));
       liveMaterial.resolution.set(w,h);
