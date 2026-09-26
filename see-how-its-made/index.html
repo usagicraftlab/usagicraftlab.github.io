@@ -72,11 +72,20 @@
 
     /* Embedded work-detail preview mode */
     body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
-    body.embed-gunya .head-control{top:14vh;left:auto;right:4vw;justify-content:flex-end}
+    body.embed-gunya #stage{touch-action:none;top:0;bottom:110px}
+    body.embed-gunya .model-list{top:18px;right:4vw;bottom:auto}
+    body.embed-gunya .tool-list{top:18px;left:4vw;bottom:auto}
+    body.embed-gunya .hud{top:auto;bottom:72px;left:4vw;right:4vw}
+    body.embed-gunya .head-control{top:auto;bottom:18px;left:auto;right:4vw;justify-content:flex-end}
     body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
-    body.embed-gunya #stage{touch-action:none}
     body.embed-gunya .tool-list,body.embed-gunya .model-list,body.embed-gunya .hud{transform:none}
-    @media(max-width:700px){body.embed-gunya .head-control{left:auto;right:18px}}
+    @media(max-width:700px){
+      body.embed-gunya #stage{bottom:104px}
+      body.embed-gunya .model-list{top:14px;right:18px}
+      body.embed-gunya .tool-list{top:14px;left:18px}
+      body.embed-gunya .hud{bottom:68px;left:18px;right:18px}
+      body.embed-gunya .head-control{bottom:14px;left:auto;right:18px}
+    }
   </style>
 </head>
 <body>
