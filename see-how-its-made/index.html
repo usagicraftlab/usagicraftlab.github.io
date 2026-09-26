@@ -39,6 +39,9 @@
     .toggle-row{display:flex;gap:8px;flex-wrap:wrap}
     .pill{min-height:44px;border:1px solid color-mix(in srgb,var(--fg,#111) 30%,transparent);background:transparent;color:inherit;padding:0 18px;border-radius:999px;cursor:pointer}
     .pill.active{background:var(--fg,#f2f2ef);color:var(--panel-bg,#3b3e42)}
+    .debug-row{display:grid;grid-template-columns:1fr 58px;gap:12px;align-items:center}
+    .debug-range{width:100%;accent-color:currentColor}
+    .debug-value{font-variant-numeric:tabular-nums;text-align:right;font-size:13px}
     .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.04em;opacity:.38;pointer-events:none;transition:opacity 1.2s ease;color:var(--fg,#111);white-space:nowrap}
     .hint.hide{opacity:0}
     @media(max-width:700px){
@@ -90,6 +93,13 @@
           </div>
         </section>
         <section class="group">
+          <p class="group-label">Debug · Line width</p>
+          <div class="debug-row">
+            <input id="lineWidthDebug" class="debug-range" type="range" min="0.5" max="8" step="0.1" value="4.0" aria-label="Line width">
+            <output id="lineWidthValue" class="debug-value">4.0 px</output>
+          </div>
+        </section>
+        <section class="group">
           <p class="group-label">Background</p>
           <div class="toggle-row">
             <button class="pill" type="button" data-bg="warm">Warm white</button>
@@ -134,7 +144,7 @@
       black:{stage:'linear-gradient(to top,#080808 0%,#202225 100%)',panel:'#101010',fg:'#f1f1ee'}
     };
     const tools={
-      0:{name:'red',css:'#d74435',three:0xd74435},
+      0:{name:'red',css:'#983937',three:0x983937},
       1:{name:'white',css:'#f4f4f0',three:0xf4f4f0},
       2:{name:'blue',css:'#315f9a',three:0x315f9a}
     };
@@ -189,7 +199,8 @@
 
     const liveGeometry=new LineSegmentsGeometry();
     liveGeometry.setPositions([0,0,0,0,0,0]);
-    const liveMaterial=new LineMaterial({color:tools[0].three,linewidth:4.8,transparent:false,opacity:1,depthWrite:true});
+    let lineWidth=4.0;
+    const liveMaterial=new LineMaterial({color:tools[0].three,linewidth:lineWidth,transparent:false,opacity:1,depthWrite:true});
     liveMaterial.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
     const liveLine=new LineSegments2(liveGeometry,liveMaterial);
     liveLine.frustumCulled=false;
@@ -450,7 +461,23 @@
     }
 
     function isAirPrintSegment(s){
-      return currentModel==='clock' && s.extrude && s.tool===2 && s.len>=12 && Math.min(s.a.y,s.b.y)>1.2;
+      return currentModel==='clock' && s.extrude && s.tool===2;
+    }
+
+    function sagAmountFor(segment){
+      return Math.min(9,Math.max(.08,segment.len*.16));
+    }
+
+    function appendSaggedSegment(target,segment,steps=14){
+      let previous=segment.a.clone();
+      const sag=sagAmountFor(segment);
+      for(let i=1;i<=steps;i++){
+        const t=i/steps;
+        const p=segment.a.clone().lerp(segment.b,t);
+        p.y-=sag*4*t*(1-t);
+        target.push(previous.x,previous.y,previous.z,p.x,p.y,p.z);
+        previous=p;
+      }
     }
 
     function buildTimeline(){
@@ -471,6 +498,7 @@
         const move={type:'move',start:totalDuration,end:totalDuration+seconds,segment:s};
         timeline.push(move);
         totalDuration+=seconds;
+        s.timelineEnd=move.end;
         point=s.b;
         if(s.extrude){
           if(!toolEndTimes.has(s.tool))toolEndTimes.set(s.tool,[]);
@@ -489,14 +517,27 @@
       printedLineMaterials.length=0;
     }
 
+    const renderedEndTimes=new Map();
+
     function buildPrintedLines(){
       clearPrinted();
+      renderedEndTimes.clear();
       const byTool=new Map();
       for(const s of segments){
         if(!s.extrude)continue;
         if(!byTool.has(s.tool))byTool.set(s.tool,[]);
+        if(!renderedEndTimes.has(s.tool))renderedEndTimes.set(s.tool,[]);
         const a=byTool.get(s.tool);
-        a.push(s.a.x,s.a.y,s.a.z,s.b.x,s.b.y,s.b.z);
+        const times=renderedEndTimes.get(s.tool);
+        if(isAirPrintSegment(s)){
+          const before=a.length;
+          appendSaggedSegment(a,s,14);
+          const generated=(a.length-before)/6;
+          for(let i=0;i<generated;i++)times.push(s.timelineEnd);
+        }else{
+          a.push(s.a.x,s.a.y,s.a.z,s.b.x,s.b.y,s.b.z);
+          times.push(s.timelineEnd);
+        }
       }
       for(const [toolId,positions] of byTool){
         const geometry=new LineSegmentsGeometry();
@@ -504,7 +545,7 @@
         geometry.instanceCount=0;
         const material=new LineMaterial({
           color:tools[toolId].three,
-          linewidth:4.8,
+          linewidth:lineWidth,
           transparent:false,
           opacity:1,
           depthWrite:true
@@ -540,7 +581,8 @@
         // While a free-air strand is being drawn, let it hang from the last
         // supported point and tighten again as the nozzle reaches the far side.
         const steps=14;
-        const sag=Math.min(9,segment.len*.16)*Math.sin(Math.PI*part);
+        const liveLength=segment.a.distanceTo(currentPoint);
+        const sag=Math.min(9,Math.max(.08,liveLength*.16));
         let previous=segment.a.clone();
         for(let i=1;i<=steps;i++){
           const t=i/steps;
@@ -587,7 +629,7 @@
       if(desiredTool!==activeTool)moveToolIndicator(desiredTool,animateTool);
 
       for(const [toolId,line] of printedLines){
-        line.geometry.instanceCount=upperBound(toolEndTimes.get(toolId)||[],time);
+        line.geometry.instanceCount=upperBound(renderedEndTimes.get(toolId)||[],time);
       }
 
       // The G-code position is the physical extrusion point. Offset the visual
@@ -664,6 +706,17 @@
     }
     window.addEventListener('resize',resize);
     resize();
+
+    const lineWidthDebug=document.getElementById('lineWidthDebug');
+    const lineWidthValue=document.getElementById('lineWidthValue');
+    function applyLineWidth(value){
+      lineWidth=Math.round(Number(value)*10)/10;
+      lineWidthValue.value=lineWidth.toFixed(1)+' px';
+      liveMaterial.linewidth=lineWidth;
+      printedLineMaterials.forEach(m=>m.linewidth=lineWidth);
+    }
+    lineWidthDebug.addEventListener('input',e=>applyLineWidth(e.target.value));
+    applyLineWidth(lineWidthDebug.value);
 
     setModel('clock');
 
