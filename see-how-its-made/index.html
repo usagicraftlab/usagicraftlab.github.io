@@ -95,10 +95,25 @@
     body.embed-block .model-list::before{
       content:'Parts';
       opacity:.55;
-      margin-right:2px
+      margin-right:2px;
+      display:flex;
+      align-items:center;
+      height:26px;
+      line-height:26px
     }
     body.embed-block .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
-    body.embed-block .model-choice{min-height:26px}
+    body.embed-block .model-list [data-model="gunyaBody"]::after{
+      content:'/';
+      display:inline-block;
+      margin-left:12px;
+      text-decoration:none!important
+    }
+    body.embed-block .model-choice{
+      min-height:26px;
+      display:flex;
+      align-items:center;
+      line-height:26px
+    }
     body.embed-block .model-choice .mark{display:none!important}
     body.embed-block .model-choice.active{text-decoration:underline}
     body.embed-block .head-control{
