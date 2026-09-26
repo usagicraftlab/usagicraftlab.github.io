@@ -9,6 +9,8 @@
     *{box-sizing:border-box}
     html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#303337;color:#f2f2ef;font-family:Arial,"Helvetica Neue","Noto Sans JP",sans-serif}
     button,input{font:inherit}
+    html,body,#app,.panel,button{touch-action:manipulation}
+    .progress-wrap{touch-action:none}
     #app{position:relative;width:100%;height:100%;background:var(--stage-bg,linear-gradient(to top,#2c2f32 0%,#555a5f 100%));transition:background .25s ease}
     #stage{position:absolute;inset:0;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
     canvas{display:block;width:100%;height:100%}
@@ -81,7 +83,7 @@
           <button class="choice active" type="button" data-model="clock"><span>UKIGARA Clock</span><span class="mark">●</span></button>
           <button class="choice" type="button" data-model="gradient"><span>Gradient</span><span class="mark">●</span></button>
           <button class="choice" type="button" data-model="gunyaBody"><span>Gunya Drawer · Body</span><span class="mark">●</span></button>
-          <button class="choice" type="button" data-model="gunyaTrays"><span>Gunya Drawer · Trays</span><span class="mark">●</span></button>
+          <button class="choice" type="button" data-model="gunyaTrays"><span>Gunya Drawer · Tray</span><span class="mark">●</span></button>
           <button class="choice" type="button" data-model="cardOuter"><span>Card Case · Outer</span><span class="mark">●</span></button>
           <button class="choice" type="button" data-model="cardInner"><span>Card Case · Inner</span><span class="mark">●</span></button>
         </section>
@@ -348,7 +350,7 @@
     async function decodePackedPrint(url){
       if(printDataCache.has(url))return printDataCache.get(url);
       const urls=Array.isArray(url)?url:[url];
-      const encoded=(await Promise.all(urls.map(async part=>(await (await fetch(part,{cache:'force-cache'})).text()).trim()))).join('');
+      const encoded=(await Promise.all(urls.map(async part=>(await (await fetch(part,{cache:'no-store'})).text()).trim()))).join('');
       const compressed=Uint8Array.from(atob(encoded),ch=>ch.charCodeAt(0));
       const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
       const bytes=new Uint8Array(await new Response(stream).arrayBuffer());
@@ -673,14 +675,17 @@
     });
     progressWrap.addEventListener('pointercancel',()=>{seeking=false;last=performance.now()});
 
-    // Prevent iOS double-tap zoom while keeping single-tap and drag interactions.
+    // Suppress double-tap / pinch zoom on iOS without breaking normal taps or drag-to-orbit.
     let lastTouchEnd=0;
     document.addEventListener('touchend',e=>{
       const now=Date.now();
-      if(now-lastTouchEnd<=300)e.preventDefault();
+      if(now-lastTouchEnd<=350)e.preventDefault();
       lastTouchEnd=now;
     },{passive:false});
+    document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
     document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+    document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
+    document.addEventListener('gestureend',e=>e.preventDefault(),{passive:false});
 
     document.getElementById('menuButton').addEventListener('click',()=>panel.classList.add('open'));
     document.getElementById('closeButton').addEventListener('click',()=>panel.classList.remove('open'));
