@@ -74,8 +74,8 @@
     body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
     body.embed-gunya .head-control{top:0;left:auto;right:4vw;justify-content:flex-end}
     body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
-    body.embed-gunya #stage{touch-action:pan-y;top:-90px;bottom:90px}
-    body.embed-gunya .tool-list,body.embed-gunya .model-list,body.embed-gunya .hud{transform:translateY(-90px)}
+    body.embed-gunya #stage{touch-action:none;top:-180px;bottom:180px}
+    body.embed-gunya .tool-list,body.embed-gunya .model-list,body.embed-gunya .hud{transform:translateY(-180px)}
     @media(max-width:700px){body.embed-gunya .head-control{left:auto;right:18px}}
   </style>
 </head>
@@ -225,7 +225,7 @@
     controls.maxPolarAngle=Math.PI*.82;
     controls.addEventListener('start',()=>hint.classList.add('hide'));
 
-    if(embedGunya)renderer.domElement.style.touchAction='pan-y';
+    if(embedGunya)renderer.domElement.style.touchAction='none';
 
     scene.add(new THREE.HemisphereLight(0xffffff,0x777777,2.1));
     const key=new THREE.DirectionalLight(0xffffff,2.4);
