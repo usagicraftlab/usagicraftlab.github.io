@@ -88,8 +88,8 @@
         <section class="group">
           <p class="group-label">Print head</p>
           <div class="toggle-row">
-            <button class="pill active" type="button" data-head="on">On</button>
-            <button class="pill" type="button" data-head="off">Off</button>
+            <button class="pill" type="button" data-head="on">On</button>
+            <button class="pill active" type="button" data-head="off">Off</button>
           </div>
         </section>
         <section class="group">
@@ -103,8 +103,8 @@
           <p class="group-label">Background</p>
           <div class="toggle-row">
             <button class="pill" type="button" data-bg="warm">Warm white</button>
-            <button class="pill" type="button" data-bg="white">White</button>
-            <button class="pill active" type="button" data-bg="gray">Gray</button>
+            <button class="pill active" type="button" data-bg="white">White</button>
+            <button class="pill" type="button" data-bg="gray">Gray</button>
             <button class="pill" type="button" data-bg="black">Black</button>
           </div>
         </section>
@@ -139,7 +139,7 @@
 
     const themes={
       warm:{stage:'linear-gradient(to top,#d2cec6 0%,#f3f1ec 100%)',panel:'#f3f1ec',fg:'#111111'},
-      white:{stage:'linear-gradient(to top,#d8d8d8 0%,#ffffff 100%)',panel:'#ffffff',fg:'#111111'},
+      white:{stage:'linear-gradient(to top,#96999b 0%,#c8c9c7 42%,#ecece8 100%)',panel:'#ecece8',fg:'#111111'},
       gray:{stage:'linear-gradient(to top,#2c2f32 0%,#555a5f 100%)',panel:'#3b3e42',fg:'#f2f2ef'},
       black:{stage:'linear-gradient(to top,#080808 0%,#202225 100%)',panel:'#101010',fg:'#f1f1ee'}
     };
@@ -151,9 +151,9 @@
 
     const scene=new THREE.Scene();
     scene.background=null;
-    app.style.setProperty('--stage-bg',themes.gray.stage);
-    app.style.setProperty('--panel-bg',themes.gray.panel);
-    app.style.setProperty('--fg',themes.gray.fg);
+    app.style.setProperty('--stage-bg',themes.white.stage);
+    app.style.setProperty('--panel-bg',themes.white.panel);
+    app.style.setProperty('--fg',themes.white.fg);
     const camera=new THREE.PerspectiveCamera(32,1,.1,2000);
     camera.position.set(180,125,220);
 
@@ -189,7 +189,7 @@
         depthWrite:false
       })
     );
-    bed.position.y=-2.2;
+    bed.position.y=-0.55;
     scene.add(bed);
 
     const printedGroup=new THREE.Group();
@@ -460,26 +460,6 @@
       camera.position.set(180,125,220);
     }
 
-    function isAirPrintSegment(s){
-      return currentModel==='clock' && s.extrude && s.tool===2;
-    }
-
-    function sagAmountFor(segment){
-      return Math.min(9,Math.max(.08,segment.len*.16));
-    }
-
-    function appendSaggedSegment(target,segment,steps=14){
-      let previous=segment.a.clone();
-      const sag=sagAmountFor(segment);
-      for(let i=1;i<=steps;i++){
-        const t=i/steps;
-        const p=segment.a.clone().lerp(segment.b,t);
-        p.y-=sag*4*t*(1-t);
-        target.push(previous.x,previous.y,previous.z,p.x,p.y,p.z);
-        previous=p;
-      }
-    }
-
     function buildTimeline(){
       timeline=[];
       toolEndTimes.clear();
@@ -529,15 +509,8 @@
         if(!renderedEndTimes.has(s.tool))renderedEndTimes.set(s.tool,[]);
         const a=byTool.get(s.tool);
         const times=renderedEndTimes.get(s.tool);
-        if(isAirPrintSegment(s)){
-          const before=a.length;
-          appendSaggedSegment(a,s,14);
-          const generated=(a.length-before)/6;
-          for(let i=0;i<generated;i++)times.push(s.timelineEnd);
-        }else{
-          a.push(s.a.x,s.a.y,s.a.z,s.b.x,s.b.y,s.b.z);
-          times.push(s.timelineEnd);
-        }
+        a.push(s.a.x,s.a.y,s.a.z,s.b.x,s.b.y,s.b.z);
+        times.push(s.timelineEnd);
       }
       for(const [toolId,positions] of byTool){
         const geometry=new LineSegmentsGeometry();
@@ -576,24 +549,10 @@
         liveLine.visible=false;
         return;
       }
-      const positions=[];
-      if(isAirPrintSegment(segment)){
-        // While a free-air strand is being drawn, let it hang from the last
-        // supported point and tighten again as the nozzle reaches the far side.
-        const steps=14;
-        const liveLength=segment.a.distanceTo(currentPoint);
-        const sag=Math.min(9,Math.max(.08,liveLength*.16));
-        let previous=segment.a.clone();
-        for(let i=1;i<=steps;i++){
-          const t=i/steps;
-          const p=segment.a.clone().lerp(currentPoint,t);
-          p.y-=sag*4*t*(1-t);
-          positions.push(previous.x,previous.y,previous.z,p.x,p.y,p.z);
-          previous=p;
-        }
-      }else{
-        positions.push(segment.a.x,segment.a.y,segment.a.z,currentPoint.x,currentPoint.y,currentPoint.z);
-      }
+      const positions=[
+        segment.a.x,segment.a.y,segment.a.z,
+        currentPoint.x,currentPoint.y,currentPoint.z
+      ];
       liveGeometry.setPositions(positions);
       liveMaterial.color.setHex(tools[segment.tool].three);
       liveLine.visible=true;
@@ -706,6 +665,8 @@
     }
     window.addEventListener('resize',resize);
     resize();
+
+    headGroup.visible=false;
 
     const lineWidthDebug=document.getElementById('lineWidthDebug');
     const lineWidthValue=document.getElementById('lineWidthValue');
