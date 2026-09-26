@@ -95,8 +95,8 @@
         <section class="group">
           <p class="group-label">Debug · Line width</p>
           <div class="debug-row">
-            <input id="lineWidthDebug" class="debug-range" type="range" min="0.5" max="8" step="0.1" value="3.5" aria-label="Line width">
-            <output id="lineWidthValue" class="debug-value">3.5 px</output>
+            <input id="lineWidthDebug" class="debug-range" type="range" min="0.5" max="8" step="0.1" value="3.8" aria-label="Line width">
+            <output id="lineWidthValue" class="debug-value">3.8 px</output>
           </div>
         </section>
         <section class="group">
@@ -145,7 +145,7 @@
     };
     const tools={
       0:{name:'red',css:'#9F2019',three:0x9F2019},
-      1:{name:'white',css:'#f4f4f0',three:0xf4f4f0},
+      1:{name:'white',css:'#F2F6FA',three:0xF2F6FA},
       2:{name:'blue',css:'#315f9a',three:0x315f9a}
     };
 
@@ -216,7 +216,7 @@
 
     const liveGeometry=new LineSegmentsGeometry();
     liveGeometry.setPositions([0,0,0,0,0,0]);
-    let lineWidth=3.5;
+    let lineWidth=3.8;
     const liveMaterial=new LineMaterial({color:tools[0].three,linewidth:lineWidth,transparent:false,opacity:1,depthWrite:true});
     applyExtrusionShading(liveMaterial);
     liveMaterial.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
@@ -227,107 +227,46 @@
 
     const headGroup=new THREE.Group();
 
-    // Lightweight MK4S / Nextruder-inspired silhouette.
-    // Deliberately simplified for mobile rendering, but shaped closer to the real assembly.
-    const headBlack=new THREE.MeshStandardMaterial({color:0x1d1d1d,roughness:.78,metalness:.02});
-    const headDark=new THREE.MeshStandardMaterial({color:0x343434,roughness:.64,metalness:.05});
-    const headOrange=new THREE.MeshStandardMaterial({color:0xf06b28,roughness:.58,metalness:.02});
-    const headMetal=new THREE.MeshStandardMaterial({color:0x9d9d99,roughness:.34,metalness:.64});
-    const brass=new THREE.MeshStandardMaterial({color:0xb8864b,roughness:.28,metalness:.72});
+    // Minimal hotend view: heater block + dimensioned V6-style nozzle.
+    // Reference proportions: 12.5 mm overall nozzle length, 7.5 mm M6 thread,
+    // 7.0 mm hex across flats. The nozzle outlet is the G-code XYZ anchor.
+    const brass=new THREE.MeshStandardMaterial({
+      color:0xb8864b,roughness:.27,metalness:.72
+    });
+    const blockMetal=new THREE.MeshStandardMaterial({
+      color:0x8f969b,roughness:.38,metalness:.66
+    });
 
-    // X-carriage / rear mounting plate
-    const carriage=new THREE.Mesh(new THREE.BoxGeometry(58,9,17),headDark);
-    carriage.position.set(0,37,-6);
+    // Heater block. The M6 threaded section passes through the block as on a real hotend.
+    const heaterBlock=new THREE.Mesh(new THREE.BoxGeometry(16,7.5,12),blockMetal);
+    heaterBlock.position.set(0,-4.15,0);
 
-    const rearPlate=new THREE.Mesh(new THREE.BoxGeometry(45,39,7),headDark);
-    rearPlate.position.set(0,17,-16);
+    // V6 nozzle, oriented for printing: M6 thread at the top, tip downward.
+    // M6 major diameter = 6 mm, threaded length = 7.5 mm.
+    const nozzleThread=new THREE.Mesh(new THREE.CylinderGeometry(3,3,7.5,32),brass);
+    nozzleThread.position.y=-3.75;
 
-    // Upper extruder / motor block
-    const motor=new THREE.Mesh(new THREE.BoxGeometry(31,28,31),headDark);
-    motor.position.set(-3,31,-1);
-
-    // Main front housing: two blocks give a stepped Nextruder-like silhouette
-    const upperHousing=new THREE.Mesh(new THREE.BoxGeometry(43,20,34),headBlack);
-    upperHousing.position.set(0,20,1);
-
-    const lowerHousing=new THREE.Mesh(new THREE.BoxGeometry(39,19,31),headBlack);
-    lowerHousing.position.set(0,2,1);
-
-    // Orange accent / latch area
-    const orangeCap=new THREE.Mesh(new THREE.BoxGeometry(44,4.5,35),headOrange);
-    orangeCap.position.set(0,29.5,1);
-
-    const orangeTab=new THREE.Mesh(new THREE.BoxGeometry(8,14,5),headOrange);
-    orangeTab.position.set(-17,20,19);
-
-    // Front fan opening
-    const fanBack=new THREE.Mesh(new THREE.CylinderGeometry(12.2,12.2,4,32),headDark);
-    fanBack.rotation.x=Math.PI/2;
-    fanBack.position.set(0,12,19);
-
-    const fanRing=new THREE.Mesh(new THREE.TorusGeometry(10.2,1.7,8,32),headBlack);
-    fanRing.rotation.x=Math.PI/2;
-    fanRing.position.set(0,12,21.3);
-
-    const fanHub=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.2,3.5,20),headBlack);
-    fanHub.rotation.x=Math.PI/2;
-    fanHub.position.set(0,12,21.5);
-
-    const fanBlades=new THREE.Group();
+    // Lightweight thread suggestion without building an expensive helical mesh.
+    const threadRings=new THREE.Group();
     for(let i=0;i<7;i++){
-      const blade=new THREE.Mesh(new THREE.BoxGeometry(2.2,7.5,1),headBlack);
-      blade.position.y=5;
-      blade.rotation.z=i*Math.PI*2/7+.28;
-      fanBlades.add(blade);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(3.04,.13,6,24),brass);
+      ring.rotation.x=Math.PI/2;
+      ring.position.y=-.65-i*1.0;
+      threadRings.add(ring);
     }
-    fanBlades.rotation.x=Math.PI/2;
-    fanBlades.position.set(0,12,21.5);
 
-    // Right-side part-cooling fan + duct, very characteristic in profile
-    const sideFanHousing=new THREE.Mesh(new THREE.BoxGeometry(14,26,27),headBlack);
-    sideFanHousing.position.set(27,8,-1);
+    // A regular hexagon with 7 mm across flats has a 4.041 mm circumradius.
+    const nozzleHex=new THREE.Mesh(new THREE.CylinderGeometry(4.041,4.041,2.5,6),brass);
+    nozzleHex.position.y=-8.75;
 
-    const sideFan=new THREE.Mesh(new THREE.CylinderGeometry(8.5,8.5,3.2,28),headDark);
-    sideFan.rotation.z=Math.PI/2;
-    sideFan.position.set(34.2,9,-1);
+    // Remaining 2.5 mm forms the short V6 tip: taper plus a small flat outlet land.
+    const nozzleTaper=new THREE.Mesh(new THREE.CylinderGeometry(3.0,.72,2.1,32),brass);
+    nozzleTaper.position.y=-11.05;
+    const nozzleTip=new THREE.Mesh(new THREE.CylinderGeometry(.72,.72,.4,24),brass);
+    nozzleTip.position.y=-12.30;
+    const nozzleOutletY=-12.50;
 
-    const ductStem=new THREE.Mesh(new THREE.BoxGeometry(9,18,13),headBlack);
-    ductStem.position.set(23,-9,3);
-    ductStem.rotation.z=-0.18;
-
-    const ductTip=new THREE.Mesh(new THREE.BoxGeometry(13,8,16),headBlack);
-    ductTip.position.set(18,-20,4);
-    ductTip.rotation.z=-0.38;
-
-    // Hotend stack
-    const heatsink=new THREE.Mesh(new THREE.CylinderGeometry(6.2,6.2,14,20),headMetal);
-    heatsink.position.set(0,-10,0);
-
-    const heatbreak=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.2,8,16),headMetal);
-    heatbreak.position.set(0,-20,0);
-
-    const heaterBlock=new THREE.Mesh(new THREE.BoxGeometry(11,7,10),headMetal);
-    heaterBlock.position.set(0,-26,0);
-
-    // V6-inspired nozzle silhouette: hex body, short taper and a visible flat at the outlet.
-    const nozzleHex=new THREE.Mesh(new THREE.CylinderGeometry(5.4,5.4,4.8,6),brass);
-    nozzleHex.position.y=-32.0;
-    const nozzleTaper=new THREE.Mesh(new THREE.CylinderGeometry(4.5,1.7,4.6,24),brass);
-    nozzleTaper.position.y=-36.7;
-    const nozzleTip=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,1.4,20),brass);
-    nozzleTip.position.y=-39.7;
-    const nozzleOutletY=-40.4;
-
-    // Small top filament guide
-    const filamentGuide=new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,15,14),headOrange);
-    filamentGuide.position.set(-3,51,-1);
-
-    headGroup.add(
-      carriage,rearPlate,motor,upperHousing,lowerHousing,orangeCap,orangeTab,
-      fanBack,fanRing,fanHub,fanBlades,
-      sideFanHousing,sideFan,ductStem,ductTip,
-      heatsink,heatbreak,heaterBlock,nozzleHex,nozzleTaper,nozzleTip,filamentGuide
-    );
+    headGroup.add(heaterBlock,nozzleThread,threadRings,nozzleHex,nozzleTaper,nozzleTip);
     scene.add(headGroup);
 
     let segments=[];
