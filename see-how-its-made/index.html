@@ -72,19 +72,23 @@
 
     /* Embedded work-detail preview mode */
     body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
-    body.embed-gunya #stage{touch-action:none;top:0;bottom:110px}
-    body.embed-gunya .model-list{top:18px;right:4vw;bottom:auto}
+    body.embed-gunya #stage{touch-action:none;top:0;bottom:132px}
     body.embed-gunya .tool-list{top:18px;left:4vw;bottom:auto}
-    body.embed-gunya .hud{top:auto;bottom:72px;left:4vw;right:4vw}
-    body.embed-gunya .head-control{top:auto;bottom:18px;left:auto;right:4vw;justify-content:flex-end}
+    body.embed-gunya .hud{top:auto;bottom:102px;left:4vw;right:4vw}
+    body.embed-gunya .model-list{
+      top:auto;right:4vw;bottom:54px;
+      flex-direction:row;align-items:center;gap:14px
+    }
+    body.embed-gunya .model-choice{min-height:28px}
+    body.embed-gunya .head-control{top:auto;bottom:10px;left:auto;right:4vw;justify-content:flex-end}
     body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
     body.embed-gunya .tool-list,body.embed-gunya .model-list,body.embed-gunya .hud{transform:none}
     @media(max-width:700px){
-      body.embed-gunya #stage{bottom:104px}
-      body.embed-gunya .model-list{top:14px;right:18px}
+      body.embed-gunya #stage{bottom:126px}
       body.embed-gunya .tool-list{top:14px;left:18px}
-      body.embed-gunya .hud{bottom:68px;left:18px;right:18px}
-      body.embed-gunya .head-control{bottom:14px;left:auto;right:18px}
+      body.embed-gunya .hud{bottom:96px;left:18px;right:18px}
+      body.embed-gunya .model-list{right:18px;bottom:50px;gap:12px}
+      body.embed-gunya .head-control{bottom:8px;left:auto;right:18px}
     }
   </style>
 </head>
