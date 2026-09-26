@@ -74,15 +74,8 @@
     body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
     body.embed-gunya .head-control{top:0;left:auto;right:4vw;justify-content:flex-end}
     body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
-    body.embed-gunya #stage{touch-action:none;top:-180px;bottom:auto;height:120vw}
+    body.embed-gunya #stage{touch-action:none;top:0;bottom:0;height:auto}
     body.embed-gunya .tool-list,body.embed-gunya .model-list,body.embed-gunya .hud{transform:none}
-    body.embed-gunya .tool-list,body.embed-gunya .model-list{top:calc(120vw - 232px);bottom:auto}
-    body.embed-gunya .hud{top:calc(120vw - 52px);bottom:auto}
-    @media(max-width:700px){
-      body.embed-gunya #stage{height:135vw}
-      body.embed-gunya .tool-list,body.embed-gunya .model-list{top:calc(135vw - 220px);bottom:auto}
-      body.embed-gunya .hud{top:calc(135vw - 48px);bottom:auto}
-    }
     @media(max-width:700px){body.embed-gunya .head-control{left:auto;right:18px}}
   </style>
 </head>
@@ -806,7 +799,12 @@
       const w=stage.clientWidth,h=stage.clientHeight;
       renderer.setSize(w,h,false);
       camera.aspect=w/h;
-      camera.fov=embedGunya?(w<=700?56:40):(w<=700?36:32);
+      if(embedGunya){
+        const horizontalFov=50*Math.PI/180;
+        camera.fov=2*Math.atan(Math.tan(horizontalFov/2)/camera.aspect)*180/Math.PI;
+      }else{
+        camera.fov=w<=700?36:32;
+      }
       camera.updateProjectionMatrix();
       printedLineMaterials.forEach(m=>m.resolution.set(w,h));
       liveMaterial.resolution.set(w,h);
