@@ -74,7 +74,7 @@
     body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
     body.embed-gunya .head-control{top:0}
     body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
-    body.embed-gunya #stage{touch-action:pan-y}
+    body.embed-gunya #stage{touch-action:none}
   </style>
 </head>
 <body>
@@ -215,7 +215,7 @@
     stage.appendChild(renderer.domElement);
 
     const controls=new OrbitControls(camera,renderer.domElement);
-    if(embedGunya)renderer.domElement.style.touchAction='pan-y';
+    if(embedGunya)renderer.domElement.style.touchAction='none';
     controls.enableDamping=true;
     controls.enablePan=false;
     controls.enableZoom=false;
