@@ -49,15 +49,10 @@ html,body{overflow-x:hidden}
 .making-preview-frame{display:block;width:100%;height:100%;border:0;background:#fff;pointer-events:none}
 .making-rotate-zone{
   position:absolute;z-index:6;touch-action:none;background:transparent;
-  left:12%;top:0;width:76%;height:100%
+  inset:0;
+  clip-path:polygon(18% 18%,82% 18%,82% 82%,18% 82%);
+  -webkit-clip-path:polygon(18% 18%,82% 18%,82% 82%,18% 82%)
 }
-.making-scroll-zone{
-  position:absolute;z-index:7;top:0;height:100%;
-  touch-action:pan-y;background:transparent;
-  -webkit-user-select:none;user-select:none
-}
-.making-scroll-zone.left{left:0;width:12%}
-.making-scroll-zone.right{right:0;width:12%}
 .making-parent-tools{
   position:absolute;z-index:7;left:4vw;top:18px;pointer-events:none;
   font-size:13px;line-height:1
@@ -83,8 +78,7 @@ html,body{overflow-x:hidden}
  .making-stage-wrap{height:100vw}
  .making-parent-tools{left:18px;top:14px;font-size:12px}
  .making-parent-controls{padding-left:18px;padding-right:18px}
- .making-rotate-zone{left:10%;top:0;width:80%;height:100%}
- .making-scroll-zone.left,.making-scroll-zone.right{width:10%}
+
 }
 @media(orientation:landscape){
  .making-stage-wrap{height:80vw}
@@ -94,10 +88,8 @@ html,body{overflow-x:hidden}
 </style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
 <div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="techniques.html">Approach</a><a href="see-how-its-made/">Making</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="detailhero"><img src="images/gunya/01.JPG" alt="Gunya Drawer"></div><div class="detailtitle"><h1 class="scroll-title">Gunya Drawer</h1></div><div class="sections"><section class="section"><h2>Concept</h2><p><span data-ja>まっすぐではない、少しぐにゃっとした輪郭をもつ小さな引き出し。収納用品でありながら、机の上に置いておきたくなるオブジェのような存在を目指しています。</span><span data-en>A small drawer with a softly distorted silhouette. It is storage, but also an object designed to remain visible on a desk.</span></p></section><section class="section"><h2>Technique</h2><p><span data-ja>3Dプリントならではの自由な輪郭を活かし、外形と引き出しが噛み合う形状を設計しています。</span><span data-en>The freedom of 3D printing is used to design a form in which the outer shell and drawer fit together.</span></p></section></div><div class="sections"><section class="section"><h2>Shop</h2><p><span data-ja><a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">オンラインショップ ↗</a>での販売を予定しています。</span><span data-en>Planned for sale through our <a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">Online Shop ↗</a>.</span></p></section><section class="section making-preview-section"><div class="making-preview-wrap">
   <div class="making-stage-wrap">
-    <iframe class="making-preview-frame" src="see-how-its-made/?embed=gunya&model=gunyaBody&v=20260926.10" title="Gunya Drawer making preview" loading="lazy"></iframe>
-    <div class="making-scroll-zone left" aria-hidden="true"></div>
+    <iframe class="making-preview-frame" src="see-how-its-made/?embed=gunya&model=gunyaBody&v=20260926.13" title="Gunya Drawer making preview" loading="lazy"></iframe>
     <div class="making-rotate-zone" aria-label="3D view rotation area"></div>
-    <div class="making-scroll-zone right" aria-hidden="true"></div>
     <div class="making-parent-tools" aria-live="polite">
       <div class="making-parent-tool"><span class="making-parent-tool-dot" style="background:#223B59"></span><span>Tool 1: navy</span></div>
     </div>
@@ -123,7 +115,7 @@ html,body{overflow-x:hidden}
       </div>
     </div>
   </div>
-</div></section></div><div class="back"><a href="works.html">← Works</a></div></main><footer>© USAGI Craft Lab. <span style="opacity:.42;margin-left:.6em">v2026.09.26.12</span></footer><script>
+</div></section></div><div class="back"><a href="works.html">← Works</a></div></main><footer>© USAGI Craft Lab. <span style="opacity:.42;margin-left:.6em">v2026.09.26.13</span></footer><script>
 (function(){
   var body=document.body;
   var overlay=document.querySelector('.overlay');
@@ -153,12 +145,32 @@ html,body{overflow-x:hidden}
     if(previewFrame&&previewFrame.contentWindow)previewFrame.contentWindow.postMessage(data,location.origin);
   }
 
-  function updateRotateZone(){}
+  function updateRotateZone(points){
+    if(!rotateZone||!Array.isArray(points)||points.length<3)return;
+    var padPct=1.8;
+    var cx=0,cy=0;
+    points.forEach(function(p){cx+=p.x;cy+=p.y;});
+    cx/=points.length;cy/=points.length;
+    var expanded=points.map(function(p){
+      var dx=p.x-cx,dy=p.y-cy,len=Math.hypot(dx,dy)||1;
+      return {
+        x:Math.max(0,Math.min(1,p.x+(dx/len)*(padPct/100))),
+        y:Math.max(0,Math.min(1,p.y+(dy/len)*(padPct/100)))
+      };
+    });
+    var polygon='polygon('+expanded.map(function(p){
+      return (p.x*100).toFixed(2)+'% '+(p.y*100).toFixed(2)+'%';
+    }).join(',')+')';
+    rotateZone.style.clipPath=polygon;
+    rotateZone.style.webkitClipPath=polygon;
+  }
 
 
   window.addEventListener('message',function(e){
     if(e.origin!==location.origin||!e.data)return;
-    if(e.data.type==='ucl-preview-progress'){
+    if(e.data.type==='ucl-interaction-mask'&&Array.isArray(e.data.points)){
+      updateRotateZone(e.data.points);
+    }else if(e.data.type==='ucl-preview-progress'){
       var p=Math.max(0,Math.min(1,Number(e.data.progress)||0));
       if(progressFill)progressFill.style.width=(p*100)+'%';
       if(progressThumb)progressThumb.style.left=(p*100)+'%';
