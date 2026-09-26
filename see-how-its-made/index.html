@@ -17,8 +17,10 @@
     .menu-button span:before{position:absolute;top:-7px}
     .menu-button span:after{position:absolute;top:7px}
     .hud{position:absolute;left:4vw;right:4vw;bottom:max(28px,env(safe-area-inset-bottom));z-index:10;pointer-events:none;color:var(--fg,#111)}
-    .tool-readout{display:flex;align-items:center;gap:7px;font-size:13px;line-height:1;margin-bottom:18px;letter-spacing:.01em}
-    .tool-dot{width:9px;height:9px;border-radius:50%;background:#d74435;border:1px solid rgba(0,0,0,.08);flex:0 0 auto}
+    .tool-list{position:absolute;left:4vw;top:50%;z-index:12;transform:translateY(-50%);color:var(--fg,#111);font-size:13px;line-height:1;letter-spacing:.01em;pointer-events:none}
+    .tool-list-inner{position:relative}
+    .tool-item{height:32px;display:flex;align-items:center;padding:0 10px;white-space:nowrap}
+    .tool-indicator{position:absolute;left:0;top:0;width:100%;height:32px;border:1px solid currentColor;pointer-events:none;transition:transform 1s cubic-bezier(.22,.61,.36,1)}
     .progress-wrap{height:28px;display:flex;align-items:center;pointer-events:auto;touch-action:pan-y}
     .progress{position:relative;width:100%;height:2px;background:color-mix(in srgb,var(--fg,#111) 22%,transparent);cursor:pointer}
     .progress-fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--fg,#111)}
@@ -43,7 +45,8 @@
       .hud{left:18px;right:18px;bottom:max(20px,env(safe-area-inset-bottom))}
       .panel{padding:14px 18px 30px}
       .panel-body{margin-top:6vh}
-      .tool-readout{font-size:12px;margin-bottom:14px}
+      .tool-list{left:18px;font-size:12px}
+      .tool-item,.tool-indicator{height:30px}
     }
     @media(prefers-reduced-motion:reduce){#app,.hint{transition:none}}
   </style>
@@ -56,10 +59,11 @@
 
     <div class="hint" id="hint">drag to change view</div>
 
+    <div class="tool-list" id="toolList" aria-live="polite">
+      <div class="tool-list-inner" id="toolListInner"></div>
+    </div>
+
     <div class="hud">
-      <div class="tool-readout" aria-live="polite">
-        <span id="toolText">Tool 1: red</span><span class="tool-dot" id="toolDot"></span>
-      </div>
       <div class="progress-wrap" id="progressWrap" aria-label="Print progress">
         <div class="progress">
           <div class="progress-fill" id="progressFill"></div>
@@ -110,8 +114,7 @@
 
     const app=document.getElementById('app');
     const stage=document.getElementById('stage');
-    const toolText=document.getElementById('toolText');
-    const toolDot=document.getElementById('toolDot');
+    const toolListInner=document.getElementById('toolListInner');
     const progressWrap=document.getElementById('progressWrap');
     const progressFill=document.getElementById('progressFill');
     const progressThumb=document.getElementById('progressThumb');
@@ -253,6 +256,11 @@
     let currentModel='vessel';
     let seeking=false;
     let last=performance.now();
+    let activeTool=null;
+    let displayedTools=[];
+    let toolIndicator=null;
+    let toolPauseUntil=0;
+    let pendingTool=null;
     const printSpeed=22; // scene units per real second for the test path
 
     function pushSegment(a,b,tool){
@@ -261,6 +269,69 @@
       segments.push({a:a.clone(),b:b.clone(),tool,len});
       totalLength+=len;
       cumulative.push(totalLength);
+    }
+
+    function modelToolOrder(){
+      const order=[];
+      for(const s of segments){
+        if(!order.includes(s.tool))order.push(s.tool);
+      }
+      return order;
+    }
+
+    function buildToolList(){
+      displayedTools=modelToolOrder();
+      toolListInner.innerHTML='';
+      displayedTools.forEach(id=>{
+        const row=document.createElement('div');
+        row.className='tool-item';
+        row.dataset.tool=String(id);
+        row.textContent='Tool '+id+': '+tools[id].name;
+        toolListInner.appendChild(row);
+      });
+      toolIndicator=document.createElement('div');
+      toolIndicator.className='tool-indicator';
+      toolListInner.appendChild(toolIndicator);
+      activeTool=displayedTools[0]||1;
+      moveToolIndicator(activeTool,false);
+    }
+
+    function moveToolIndicator(toolId,animate=true){
+      if(!toolIndicator)return;
+      const index=Math.max(0,displayedTools.indexOf(toolId));
+      const row=toolListInner.querySelector('.tool-item');
+      const rowHeight=row?row.getBoundingClientRect().height:32;
+      toolIndicator.style.transitionDuration=animate?'1s':'0s';
+      toolIndicator.style.transform='translateY('+(index*rowHeight)+'px)';
+      if(!animate)requestAnimationFrame(()=>{if(toolIndicator)toolIndicator.style.transitionDuration='1s'});
+      activeTool=toolId;
+    }
+
+    function toolAtProgress(p){
+      const target=p*totalLength;
+      let used=0;
+      for(const s of segments){
+        if(target<=used+s.len)return s.tool;
+        used+=s.len;
+      }
+      return segments.at(-1)?.tool||1;
+    }
+
+    function nextToolBoundary(fromProgress,toProgress){
+      if(toProgress<=fromProgress)return null;
+      const start=fromProgress*totalLength;
+      const end=toProgress*totalLength;
+      let used=0;
+      let previousTool=segments[0]?.tool||1;
+      for(const s of segments){
+        const segStart=used;
+        if(segStart>start && segStart<=end && s.tool!==previousTool){
+          return {progress:segStart/totalLength,tool:s.tool};
+        }
+        previousTool=s.tool;
+        used+=s.len;
+      }
+      return null;
     }
 
     function buildVessel(){
@@ -351,9 +422,7 @@
       }
       headGroup.position.copy(currentPoint);
       headGroup.position.y+=25;
-      const tool=tools[currentTool];
-      toolText.textContent='Tool '+currentTool+': '+tool.name;
-      toolDot.style.background=tool.css;
+      if(!toolPauseUntil && currentTool!==activeTool)moveToolIndicator(currentTool,false);
       const pct=Math.max(0,Math.min(100,progress*100));
       progressFill.style.width=pct+'%';
       progressThumb.style.left=pct+'%';
@@ -363,6 +432,9 @@
       currentModel=name;
       name==='grid'?buildGrid():buildVessel();
       progress=0;
+      toolPauseUntil=0;
+      pendingTool=null;
+      buildToolList();
       renderProgress();
       document.querySelectorAll('[data-model]').forEach(b=>b.classList.toggle('active',b.dataset.model===name));
       panel.classList.remove('open');
@@ -372,6 +444,9 @@
     function seekFromEvent(e){
       const bar=progressWrap.querySelector('.progress').getBoundingClientRect();
       progress=Math.max(0,Math.min(1,(e.clientX-bar.left)/bar.width));
+      toolPauseUntil=0;
+      pendingTool=null;
+      moveToolIndicator(toolAtProgress(progress),false);
       renderProgress();
       last=performance.now();
     }
@@ -418,6 +493,7 @@
     resize();
 
     buildVessel();
+    buildToolList();
     renderProgress();
 
     function animate(now){
@@ -425,8 +501,29 @@
       const dt=Math.min(.05,(now-last)/1000);
       last=now;
       if(!seeking && !panel.classList.contains('open') && progress<1 && totalLength>0){
-        progress=Math.min(1,progress+(printSpeed*dt)/totalLength);
-        renderProgress();
+        if(toolPauseUntil){
+          if(now>=toolPauseUntil){
+            toolPauseUntil=0;
+            if(pendingTool!==null){
+              activeTool=pendingTool;
+              pendingTool=null;
+            }
+            last=now;
+          }
+        }else{
+          const nextProgress=Math.min(1,progress+(printSpeed*dt)/totalLength);
+          const boundary=nextToolBoundary(progress,nextProgress);
+          if(boundary){
+            progress=boundary.progress;
+            pendingTool=boundary.tool;
+            moveToolIndicator(boundary.tool,true);
+            toolPauseUntil=now+1000;
+            renderProgress();
+          }else{
+            progress=nextProgress;
+            renderProgress();
+          }
+        }
       }
       controls.update();
       renderer.render(scene,camera);
