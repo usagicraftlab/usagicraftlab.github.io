@@ -68,6 +68,12 @@ html,body{overflow-x:hidden}
   var saved='ja'; try{saved=localStorage.getItem('ucl-lang')||'ja';}catch(e){}
   setLang(saved);
 
+  window.addEventListener('message',function(e){
+    if(e.origin!==location.origin||!e.data||e.data.type!=='ucl-preview-scroll')return;
+    var dy=Number(e.data.dy);
+    if(Number.isFinite(dy)&&dy!==0)window.scrollBy(0,dy);
+  });
+
   var title=document.querySelector('.scroll-title');
   if(title){
     var text=title.textContent;
