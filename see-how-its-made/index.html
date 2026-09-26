@@ -670,7 +670,6 @@
       buildPrintedLines();
       renderProgress(false);
       document.querySelectorAll('[data-model]').forEach(b=>b.classList.toggle('active',b.dataset.model===name));
-      panel.classList.remove('open');
       last=performance.now();
     }
 
