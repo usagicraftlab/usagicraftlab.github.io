@@ -763,9 +763,10 @@
       else await buildPackedModel(name);
       if(embedGunya){
         const w=stage.clientWidth||window.innerWidth;
-        const scale=w<=700?.70:(w<=1100?.80:.95);
-        const offset=camera.position.clone().sub(controls.target).multiplyScalar(scale);
-        camera.position.copy(controls.target).add(offset);
+        if(w<=700){
+          const offset=camera.position.clone().sub(controls.target).multiplyScalar(.70);
+          camera.position.copy(controls.target).add(offset);
+        }
         camera.lookAt(controls.target);
         controls.update();
       }
@@ -829,8 +830,8 @@
       const w=stage.clientWidth,h=stage.clientHeight;
       renderer.setSize(w,h,false);
       camera.aspect=w/h;
-      if(embedGunya){
-        camera.fov=w<=700?30:(w<=1100?32:40);
+      if(embedGunya&&w<=700){
+        camera.fov=30;
       }else{
         camera.fov=w<=700?36:32;
       }
