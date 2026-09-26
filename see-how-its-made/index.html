@@ -92,6 +92,11 @@
     body.embed-block .model-list{
       right:24px;bottom:46px;flex-direction:row;gap:12px;font-size:12px
     }
+    body.embed-block .model-list::before{
+      content:'Parts';
+      opacity:.55;
+      margin-right:2px
+    }
     body.embed-block .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
     body.embed-block .model-choice{min-height:26px}
     body.embed-block .model-choice .mark{display:none!important}
