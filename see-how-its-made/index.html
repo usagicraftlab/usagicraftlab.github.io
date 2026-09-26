@@ -111,6 +111,9 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+    import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+    import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
     const app=document.getElementById('app');
     const stage=document.getElementById('stage');
@@ -174,6 +177,8 @@
 
     const printedGroup=new THREE.Group();
     scene.add(printedGroup);
+    const printedLines=new Map();
+    const printedLineMaterials=[];
 
     const headGroup=new THREE.Group();
 
@@ -379,47 +384,66 @@
       }
     }
 
-    function makeLine(a,b,tool,partial=1){
-      const end=a.clone().lerp(b,partial);
-      const dir=end.clone().sub(a);
-      const len=dir.length();
-      if(len<.001)return null;
-      const mat=new THREE.MeshStandardMaterial({
-        color:tools[tool].three,
-        roughness:.72,
-        metalness:0,
-        transparent:tool===2,
-        opacity:tool===2?.58:1,
-        depthWrite:tool!==2
-      });
-      const mesh=new THREE.Mesh(new THREE.CylinderGeometry(.82,.82,len,7,1,false),mat);
-      mesh.position.copy(a).add(end).multiplyScalar(.5);
-      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());
-      return mesh;
+    function clearPrinted(){
+      for(const line of printedLines.values()){
+        printedGroup.remove(line);
+        line.geometry.dispose();
+        line.material.dispose();
+      }
+      printedLines.clear();
+      printedLineMaterials.length=0;
     }
 
-    function clearPrinted(){
-      while(printedGroup.children.length){
-        const o=printedGroup.children.pop();
-        o.geometry?.dispose();o.material?.dispose();
+    function buildPrintedLines(){
+      clearPrinted();
+      const byTool=new Map();
+      for(const s of segments){
+        if(!byTool.has(s.tool))byTool.set(s.tool,[]);
+        const a=byTool.get(s.tool);
+        a.push(s.a.x,s.a.y,s.a.z,s.b.x,s.b.y,s.b.z);
+      }
+      for(const [toolId,positions] of byTool){
+        const geometry=new LineSegmentsGeometry();
+        geometry.setPositions(positions);
+        geometry.instanceCount=0;
+        const material=new LineMaterial({
+          color:tools[toolId].three,
+          linewidth:3.2,
+          transparent:toolId===2,
+          opacity:toolId===2?.62:1,
+          depthWrite:toolId!==2
+        });
+        material.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
+        const line=new LineSegments2(geometry,material);
+        line.computeLineDistances();
+        line.frustumCulled=false;
+        printedGroup.add(line);
+        printedLines.set(toolId,line);
+        printedLineMaterials.push(material);
       }
     }
 
     function renderProgress(){
-      clearPrinted();
       const target=progress*totalLength;
       let used=0,currentTool=segments[0]?.tool||1,currentPoint=segments[0]?.a||new THREE.Vector3();
+      const counts={};
+      for(const id of displayedTools)counts[id]=0;
+
       for(const s of segments){
         if(used>=target)break;
         const remain=target-used;
         const part=Math.min(1,remain/s.len);
-        const mesh=makeLine(s.a,s.b,s.tool,part);
-        if(mesh)printedGroup.add(mesh);
         currentTool=s.tool;
         currentPoint=s.a.clone().lerp(s.b,part);
+        if(part>=1)counts[s.tool]=(counts[s.tool]||0)+1;
         used+=Math.min(s.len,remain);
         if(part<1)break;
       }
+
+      for(const [toolId,line] of printedLines){
+        line.geometry.instanceCount=counts[toolId]||0;
+      }
+
       headGroup.position.copy(currentPoint);
       headGroup.position.y+=25;
       if(!toolPauseUntil && currentTool!==activeTool)moveToolIndicator(currentTool,false);
@@ -435,6 +459,7 @@
       toolPauseUntil=0;
       pendingTool=null;
       buildToolList();
+      buildPrintedLines();
       renderProgress();
       document.querySelectorAll('[data-model]').forEach(b=>b.classList.toggle('active',b.dataset.model===name));
       panel.classList.remove('open');
@@ -488,12 +513,14 @@
       const w=stage.clientWidth,h=stage.clientHeight;
       renderer.setSize(w,h,false);
       camera.aspect=w/h;camera.updateProjectionMatrix();
+      printedLineMaterials.forEach(m=>m.resolution.set(w,h));
     }
     window.addEventListener('resize',resize);
     resize();
 
     buildVessel();
     buildToolList();
+    buildPrintedLines();
     renderProgress();
 
     function animate(now){
