@@ -56,7 +56,7 @@ html,body{overflow-x:hidden}
 
 .making-preview-section + .back,.back{border-top:0!important}
 </style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
-<div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="techniques.html">Approach</a><a href="see-how-its-made/">Making</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="detailhero"><img src="images/gunya/01.JPG" alt="Gunya Drawer"></div><div class="detailtitle"><h1 class="scroll-title">Gunya Drawer</h1></div><div class="sections"><section class="section"><h2>Concept</h2><p><span data-ja>まっすぐではない、少しぐにゃっとした輪郭をもつ小さな引き出し。収納用品でありながら、机の上に置いておきたくなるオブジェのような存在を目指しています。</span><span data-en>A small drawer with a softly distorted silhouette. It is storage, but also an object designed to remain visible on a desk.</span></p></section><section class="section"><h2>Technique</h2><p><span data-ja>3Dプリントならではの自由な輪郭を活かし、外形と引き出しが噛み合う形状を設計しています。</span><span data-en>The freedom of 3D printing is used to design a form in which the outer shell and drawer fit together.</span></p></section></div><div class="sections"><section class="section"><h2>Shop</h2><p><span data-ja><a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">オンラインショップ ↗</a>での販売を予定しています。</span><span data-en>Planned for sale through our <a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">Online Shop ↗</a>.</span></p></section><section class="section making-preview-section"><div class="making-preview-wrap"><iframe class="making-preview-frame" src="see-how-its-made/?embed=gunya&model=gunyaBody" title="Gunya Drawer making preview" loading="lazy"></iframe><svg class="making-scroll-catcher" aria-hidden="true"><path></path></svg></div></section></div><div class="back"><a href="works.html">← Works</a></div></main><footer>© USAGI Craft Lab. <span style="opacity:.42;margin-left:.6em">v2026.09.26.5</span></footer><script>
+<div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="techniques.html">Approach</a><a href="see-how-its-made/">Making</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="detailhero"><img src="images/gunya/01.JPG" alt="Gunya Drawer"></div><div class="detailtitle"><h1 class="scroll-title">Gunya Drawer</h1></div><div class="sections"><section class="section"><h2>Concept</h2><p><span data-ja>まっすぐではない、少しぐにゃっとした輪郭をもつ小さな引き出し。収納用品でありながら、机の上に置いておきたくなるオブジェのような存在を目指しています。</span><span data-en>A small drawer with a softly distorted silhouette. It is storage, but also an object designed to remain visible on a desk.</span></p></section><section class="section"><h2>Technique</h2><p><span data-ja>3Dプリントならではの自由な輪郭を活かし、外形と引き出しが噛み合う形状を設計しています。</span><span data-en>The freedom of 3D printing is used to design a form in which the outer shell and drawer fit together.</span></p></section></div><div class="sections"><section class="section"><h2>Shop</h2><p><span data-ja><a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">オンラインショップ ↗</a>での販売を予定しています。</span><span data-en>Planned for sale through our <a href="https://usagi-craft-lab.booth.pm/items/7130093" target="_blank" rel="noopener">Online Shop ↗</a>.</span></p></section><section class="section making-preview-section"><div class="making-preview-wrap"><iframe class="making-preview-frame" src="see-how-its-made/?embed=gunya&model=gunyaBody" title="Gunya Drawer making preview" loading="lazy"></iframe><svg class="making-scroll-catcher" aria-hidden="true"><path></path></svg></div></section></div><div class="back"><a href="works.html">← Works</a></div></main><footer>© USAGI Craft Lab. <span style="opacity:.42;margin-left:.6em">v2026.09.26.6</span></footer><script>
 (function(){
   var body=document.body;
   var overlay=document.querySelector('.overlay');
@@ -76,6 +76,7 @@ html,body{overflow-x:hidden}
   var previewWrap=document.querySelector('.making-preview-wrap');
   var catcher=previewWrap&&previewWrap.querySelector('.making-scroll-catcher');
   var catcherPath=catcher&&catcher.querySelector('path');
+  var previewFrame=previewWrap&&previewWrap.querySelector('.making-preview-frame');
   var bedPoints=null;
 
   function updatePreviewTouchMask(){
@@ -101,7 +102,6 @@ html,body{overflow-x:hidden}
     d+=' M'+(w*.55)+' '+headTop+'H'+w+'V'+(headTop+76)+'H'+(w*.55)+'Z';
     d+=' M0 '+Math.max(0,h-210)+'H'+Math.min(w*.48,320)+'V'+h+'H0Z';
     d+=' M'+Math.max(0,w-Math.min(w*.48,320))+' '+Math.max(0,h-210)+'H'+w+'V'+h+'H'+Math.max(0,w-Math.min(w*.48,320))+'Z';
-    d+=' M0 '+Math.max(0,h-62)+'H'+w+'V'+h+'H0Z';
     catcherPath.setAttribute('d',d);
   }
 
@@ -113,6 +113,71 @@ html,body{overflow-x:hidden}
     }
   });
   window.addEventListener('resize',updatePreviewTouchMask);
+
+  // iPad/Safari: handle background scrolling in the parent document instead
+  // of relying on scroll gestures crossing the iframe boundary.
+  if(catcherPath){
+    var dragMode=null,lastY=0;
+    function previewPoint(e){
+      var r=previewWrap.getBoundingClientRect();
+      return {x:e.clientX-r.left,y:e.clientY-r.top,w:r.width,h:r.height};
+    }
+    function beginPreviewDrag(e){
+      var p=previewPoint(e);
+      dragMode=p.y>=p.h-62?'seek':'scroll';
+      lastY=e.clientY;
+      if(dragMode==='seek'&&previewFrame&&previewFrame.contentWindow){
+        previewFrame.contentWindow.postMessage({type:'ucl-preview-seek',progress:Math.max(0,Math.min(1,p.x/p.w))},location.origin);
+      }
+      e.preventDefault();
+    }
+    function movePreviewDrag(e){
+      if(!dragMode)return;
+      var p=previewPoint(e);
+      if(dragMode==='seek'){
+        if(previewFrame&&previewFrame.contentWindow){
+          previewFrame.contentWindow.postMessage({type:'ucl-preview-seek',progress:Math.max(0,Math.min(1,p.x/p.w))},location.origin);
+        }
+      }else{
+        window.scrollBy(0,lastY-e.clientY);
+        lastY=e.clientY;
+      }
+      e.preventDefault();
+    }
+    function endPreviewDrag(e){dragMode=null;if(e)e.preventDefault();}
+
+    catcherPath.addEventListener('pointerdown',beginPreviewDrag,{passive:false});
+    catcherPath.addEventListener('pointermove',movePreviewDrag,{passive:false});
+    catcherPath.addEventListener('pointerup',endPreviewDrag,{passive:false});
+    catcherPath.addEventListener('pointercancel',endPreviewDrag,{passive:false});
+
+    var touchY=0,touchMode=null;
+    catcherPath.addEventListener('touchstart',function(e){
+      if(!e.touches.length)return;
+      var t=e.touches[0],r=previewWrap.getBoundingClientRect();
+      touchMode=(t.clientY-r.top)>=r.height-62?'seek':'scroll';
+      touchY=t.clientY;
+      if(touchMode==='seek'&&previewFrame&&previewFrame.contentWindow){
+        previewFrame.contentWindow.postMessage({type:'ucl-preview-seek',progress:Math.max(0,Math.min(1,(t.clientX-r.left)/r.width))},location.origin);
+      }
+      e.preventDefault();
+    },{passive:false});
+    catcherPath.addEventListener('touchmove',function(e){
+      if(!e.touches.length||!touchMode)return;
+      var t=e.touches[0],r=previewWrap.getBoundingClientRect();
+      if(touchMode==='seek'){
+        if(previewFrame&&previewFrame.contentWindow){
+          previewFrame.contentWindow.postMessage({type:'ucl-preview-seek',progress:Math.max(0,Math.min(1,(t.clientX-r.left)/r.width))},location.origin);
+        }
+      }else{
+        window.scrollBy(0,touchY-t.clientY);
+        touchY=t.clientY;
+      }
+      e.preventDefault();
+    },{passive:false});
+    catcherPath.addEventListener('touchend',function(e){touchMode=null;e.preventDefault();},{passive:false});
+    catcherPath.addEventListener('touchcancel',function(e){touchMode=null;e.preventDefault();},{passive:false});
+  }
 
   var title=document.querySelector('.scroll-title');
   if(title){
