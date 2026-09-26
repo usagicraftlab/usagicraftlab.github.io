@@ -69,6 +69,12 @@
       .model-choice{min-height:28px}
     }
     @media(prefers-reduced-motion:reduce){.hint{transition:none}}
+
+    /* Embedded work-detail preview mode */
+    body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
+    body.embed-gunya .head-control{top:0}
+    body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
+    body.embed-gunya #stage{touch-action:pan-y}
   </style>
 </head>
 <body>
@@ -147,6 +153,9 @@
     import { CLOCK_DATA_B64 } from './clock-data.js';
 
     const app=document.getElementById('app');
+    const params=new URLSearchParams(location.search);
+    const embedGunya=params.get('embed')==='gunya';
+    if(embedGunya)document.body.classList.add('embed-gunya');
     const stage=document.getElementById('stage');
     const toolListInner=document.getElementById('toolListInner');
     const progressWrap=document.getElementById('progressWrap');
@@ -206,6 +215,7 @@
     stage.appendChild(renderer.domElement);
 
     const controls=new OrbitControls(camera,renderer.domElement);
+    if(embedGunya)renderer.domElement.style.touchAction='pan-y';
     controls.enableDamping=true;
     controls.enablePan=false;
     controls.enableZoom=false;
@@ -734,8 +744,11 @@
 
     headGroup.visible=true;
 
-    const requestedModel=new URLSearchParams(location.search).get('model');
-    const initialModel=Object.prototype.hasOwnProperty.call(modelConfigs,requestedModel)?requestedModel:'clock';
+    const requestedModel=params.get('model');
+    const allowedEmbedModels=['gunyaBody','gunyaTrays'];
+    const initialModel=embedGunya
+      ?(allowedEmbedModels.includes(requestedModel)?requestedModel:'gunyaBody')
+      :(Object.prototype.hasOwnProperty.call(modelConfigs,requestedModel)?requestedModel:'clock');
     await setModel(initialModel);
 
     function animate(now){
