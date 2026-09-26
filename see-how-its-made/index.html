@@ -82,8 +82,11 @@
         <section class="group">
           <p class="group-label">Model</p>
           <button class="choice active" type="button" data-model="clock"><span>UKIGARA Clock</span><span class="mark">●</span></button>
-          <button class="choice" type="button" data-model="vessel"><span>Vessel / test 01</span><span class="mark">●</span></button>
-          <button class="choice" type="button" data-model="grid"><span>Grid / test 02</span><span class="mark">●</span></button>
+          <button class="choice" type="button" data-model="gradient"><span>Gradient</span><span class="mark">●</span></button>
+          <button class="choice" type="button" data-model="gunyaBody"><span>Gunya Drawer · Body</span><span class="mark">●</span></button>
+          <button class="choice" type="button" data-model="gunyaTrays"><span>Gunya Drawer · Trays</span><span class="mark">●</span></button>
+          <button class="choice" type="button" data-model="cardOuter"><span>Card Case · Outer</span><span class="mark">●</span></button>
+          <button class="choice" type="button" data-model="cardInner"><span>Card Case · Inner</span><span class="mark">●</span></button>
         </section>
         <section class="group">
           <p class="group-label">Print head</p>
@@ -143,11 +146,45 @@
       gray:{stage:'linear-gradient(to top,#2c2f32 0%,#555a5f 100%)',panel:'#3b3e42',fg:'#f2f2ef'},
       black:{stage:'linear-gradient(to top,#080808 0%,#202225 100%)',panel:'#101010',fg:'#f1f1ee'}
     };
-    const tools={
-      0:{name:'red',css:'#9F2019',three:0x9F2019},
-      1:{name:'white',css:'#F2F6FA',three:0xF2F6FA},
-      2:{name:'blue',css:'#315f9a',three:0x315f9a}
+    const modelConfigs={
+      clock:{
+        tools:{
+          0:{name:'red',css:'#9F2019',three:0x9F2019,opacity:1},
+          1:{name:'cool white',css:'#F2F6FA',three:0xF2F6FA,opacity:1},
+          2:{name:'blue',css:'#315f9a',three:0x315f9a,opacity:1}
+        },targetY:20,camera:[180,115,220]
+      },
+      gradient:{
+        data:'data-gradient.txt',
+        tools:{
+          0:{name:'red',css:'#9F2019',three:0x9F2019,opacity:1},
+          1:{name:'691 U',css:'#F1D3D5',three:0xF1D3D5,opacity:1}
+        },targetY:16,camera:[175,105,215]
+      },
+      gunyaBody:{
+        data:'data-gunya-body.txt',
+        tools:{0:{name:'navy',css:'#17283F',three:0x17283F,opacity:1}},
+        targetY:24,camera:[180,120,220]
+      },
+      gunyaTrays:{
+        data:'data-gunya-trays.txt',
+        tools:{
+          0:{name:'1235 C',css:'#FFB81C',three:0xFFB81C,opacity:1},
+          1:{name:'Estate Blue',css:'#233658',three:0x233658,opacity:1}
+        },targetY:16,camera:[190,110,235]
+      },
+      cardOuter:{
+        data:'data-card-outer.txt',
+        tools:{0:{name:'translucent PETG',css:'#DCE8EE',three:0xDCE8EE,opacity:.46}},
+        targetY:48,camera:[170,105,215]
+      },
+      cardInner:{
+        data:'data-card-inner.txt',
+        tools:{0:{name:'light blue',css:'#B8CCE4',three:0xB8CCE4,opacity:1}},
+        targetY:30,camera:[175,110,220]
+      }
     };
+    let tools=modelConfigs.clock.tools;
 
     const scene=new THREE.Scene();
     scene.background=null;
@@ -312,9 +349,35 @@
       return moves;
     }
 
-    function buildClock(){
+    const printDataCache=new Map();
+    async function decodePackedPrint(url){
+      if(printDataCache.has(url))return printDataCache.get(url);
+      const encoded=(await (await fetch(url,{cache:'force-cache'})).text()).trim();
+      const compressed=Uint8Array.from(atob(encoded),ch=>ch.charCodeAt(0));
+      const stream=new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
+      const bytes=new Uint8Array(await new Response(stream).arrayBuffer());
+      if(bytes[0]!==85||bytes[1]!==67||bytes[2]!==76||bytes[3]!==50)throw new Error('Invalid print data');
+      const count=bytes[4]|(bytes[5]<<8)|(bytes[6]<<16)|(bytes[7]<<24);
+      let pos=8,px=0,py=0,pz=0;
+      function getVar(){
+        let q=0,shift=0,b;
+        do{b=bytes[pos++];q|=(b&127)<<shift;shift+=7;}while(b&128);
+        return q>>>0;
+      }
+      function unzig(q){return (q&1)?-((q+1)>>1):(q>>1)}
+      const moves=new Array(count);
+      for(let i=0;i<count;i++){
+        px+=unzig(getVar());py+=unzig(getVar());pz+=unzig(getVar());
+        const feed=getVar();
+        const flag=bytes[pos++];
+        moves[i]={x:px/1000,y:py/1000,z:pz/1000,feed,extrude:(flag&1)!==0,tool:flag>>1};
+      }
+      printDataCache.set(url,moves);
+      return moves;
+    }
+
+    function movesToSegments(moves){
       segments=[];
-      const moves=decodeClockMoves();
       if(!moves.length)return;
       let prev=new THREE.Vector3(moves[0].x,moves[0].z,moves[0].y);
       for(let i=1;i<moves.length;i++){
@@ -323,8 +386,20 @@
         pushSegment(prev,p,m.tool,{feed:m.feed,extrude:m.extrude});
         prev=p;
       }
-      controls.target.set(0,20,0);
-      camera.position.set(180,115,220);
+    }
+
+    async function buildPackedModel(name){
+      const config=modelConfigs[name];
+      const moves=await decodePackedPrint(config.data);
+      movesToSegments(moves);
+      controls.target.set(0,config.targetY,0);
+      camera.position.set(...config.camera);
+    }
+
+    function buildClock(){
+      movesToSegments(decodeClockMoves());
+      controls.target.set(0,modelConfigs.clock.targetY,0);
+      camera.position.set(...modelConfigs.clock.camera);
     }
 
     function modelToolOrder(){
@@ -476,9 +551,9 @@
         const material=new LineMaterial({
           color:tools[toolId].three,
           linewidth:lineWidth,
-          transparent:false,
-          opacity:1,
-          depthWrite:true
+          transparent:(tools[toolId].opacity??1)<1,
+          opacity:tools[toolId].opacity??1,
+          depthWrite:(tools[toolId].opacity??1)>=1
         });
         applyExtrusionShading(material);
         material.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
@@ -512,7 +587,11 @@
         currentPoint.x,currentPoint.y,currentPoint.z
       ];
       liveGeometry.setPositions(positions);
-      liveMaterial.color.setHex(tools[segment.tool].three);
+      const liveTool=tools[segment.tool];
+      liveMaterial.color.setHex(liveTool.three);
+      liveMaterial.opacity=liveTool.opacity??1;
+      liveMaterial.transparent=(liveTool.opacity??1)<1;
+      liveMaterial.depthWrite=(liveTool.opacity??1)>=1;
       liveLine.visible=true;
     }
 
@@ -558,11 +637,12 @@
       progressThumb.style.left=pct+'%';
     }
 
-    function setModel(name){
+    async function setModel(name){
       currentModel=name;
+      tools=modelConfigs[name].tools;
+      liveLine.visible=false;
       if(name==='clock')buildClock();
-      else if(name==='grid')buildGrid();
-      else buildVessel();
+      else await buildPackedModel(name);
       progress=0;
       buildToolList();
       buildTimeline();
@@ -599,7 +679,7 @@
 
     document.getElementById('menuButton').addEventListener('click',()=>panel.classList.add('open'));
     document.getElementById('closeButton').addEventListener('click',()=>panel.classList.remove('open'));
-    document.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',()=>setModel(b.dataset.model)));
+    document.querySelectorAll('[data-model]').forEach(b=>b.addEventListener('click',async()=>{try{await setModel(b.dataset.model)}catch(err){console.error(err)}}));
     document.querySelectorAll('[data-head]').forEach(b=>b.addEventListener('click',()=>{
       const on=b.dataset.head==='on';
       headGroup.visible=on;
@@ -637,7 +717,7 @@
     lineWidthDebug.addEventListener('input',e=>applyLineWidth(e.target.value));
     applyLineWidth(lineWidthDebug.value);
 
-    setModel('clock');
+    await setModel('clock');
 
     function animate(now){
       requestAnimationFrame(animate);
