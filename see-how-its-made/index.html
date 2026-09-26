@@ -95,8 +95,8 @@
         <section class="group">
           <p class="group-label">Debug · Line width</p>
           <div class="debug-row">
-            <input id="lineWidthDebug" class="debug-range" type="range" min="0.5" max="8" step="0.1" value="4.0" aria-label="Line width">
-            <output id="lineWidthValue" class="debug-value">4.0 px</output>
+            <input id="lineWidthDebug" class="debug-range" type="range" min="0.5" max="8" step="0.1" value="3.5" aria-label="Line width">
+            <output id="lineWidthValue" class="debug-value">3.5 px</output>
           </div>
         </section>
         <section class="group">
@@ -144,7 +144,7 @@
       black:{stage:'linear-gradient(to top,#080808 0%,#202225 100%)',panel:'#101010',fg:'#f1f1ee'}
     };
     const tools={
-      0:{name:'red',css:'#7A1F1F',three:0x7A1F1F},
+      0:{name:'red',css:'#9F2019',three:0x9F2019},
       1:{name:'white',css:'#f4f4f0',three:0xf4f4f0},
       2:{name:'blue',css:'#315f9a',three:0x315f9a}
     };
@@ -199,7 +199,7 @@
 
     const liveGeometry=new LineSegmentsGeometry();
     liveGeometry.setPositions([0,0,0,0,0,0]);
-    let lineWidth=4.0;
+    let lineWidth=3.5;
     const liveMaterial=new LineMaterial({color:tools[0].three,linewidth:lineWidth,transparent:false,opacity:1,depthWrite:true});
     liveMaterial.resolution.set(stage.clientWidth||1,stage.clientHeight||1);
     const liveLine=new LineSegments2(liveGeometry,liveMaterial);
