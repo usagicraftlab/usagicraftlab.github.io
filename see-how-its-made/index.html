@@ -71,11 +71,10 @@
     @media(prefers-reduced-motion:reduce){.hint{transition:none}}
 
     /* Embedded work-detail preview mode */
-    body.embed-gunya{touch-action:none;overscroll-behavior:none}
     body.embed-gunya header,body.embed-gunya .overlay{display:none!important}
     body.embed-gunya .head-control{top:0;left:auto;right:4vw;justify-content:flex-end}
     body.embed-gunya .model-list [data-model]:not([data-model="gunyaBody"]):not([data-model="gunyaTrays"]){display:none}
-    body.embed-gunya #stage{touch-action:none}
+    body.embed-gunya #stage{touch-action:pan-y}
     @media(max-width:700px){body.embed-gunya .head-control{left:auto;right:18px}}
   </style>
 </head>
@@ -225,50 +224,7 @@
     controls.maxPolarAngle=Math.PI*.82;
     controls.addEventListener('start',()=>hint.classList.add('hide'));
 
-    if(embedGunya){
-      controls.enabled=false;
-      renderer.domElement.style.touchAction='none';
-
-      let dragPointer=null;
-      let dragX=0;
-
-      const rotateHorizontally=dx=>{
-        const offset=camera.position.clone().sub(controls.target);
-        const cos=Math.cos(-dx*.006);
-        const sin=Math.sin(-dx*.006);
-        const x=offset.x*cos-offset.z*sin;
-        const z=offset.x*sin+offset.z*cos;
-        camera.position.set(controls.target.x+x,camera.position.y,controls.target.z+z);
-        camera.lookAt(controls.target);
-      };
-
-      renderer.domElement.addEventListener('pointerdown',e=>{
-        if(e.pointerType==='mouse'&&e.button!==0)return;
-        dragPointer=e.pointerId;
-        dragX=e.clientX;
-        renderer.domElement.setPointerCapture(e.pointerId);
-        hint.classList.add('hide');
-        e.preventDefault();
-      },{passive:false});
-
-      renderer.domElement.addEventListener('pointermove',e=>{
-        if(e.pointerId!==dragPointer)return;
-        const dx=e.clientX-dragX;
-        dragX=e.clientX;
-        if(dx)rotateHorizontally(dx);
-        e.preventDefault();
-      },{passive:false});
-
-      const endHorizontalDrag=e=>{
-        if(e.pointerId!==dragPointer)return;
-        dragPointer=null;
-        if(renderer.domElement.hasPointerCapture(e.pointerId))renderer.domElement.releasePointerCapture(e.pointerId);
-        e.preventDefault();
-      };
-      renderer.domElement.addEventListener('pointerup',endHorizontalDrag,{passive:false});
-      renderer.domElement.addEventListener('pointercancel',endHorizontalDrag,{passive:false});
-      renderer.domElement.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
-    }
+    if(embedGunya)renderer.domElement.style.touchAction='pan-y';
 
     scene.add(new THREE.HemisphereLight(0xffffff,0x777777,2.1));
     const key=new THREE.DirectionalLight(0xffffff,2.4);
@@ -720,10 +676,6 @@
       liveLine.visible=false;
       if(name==='clock')buildClock();
       else await buildPackedModel(name);
-      if(embedGunya){
-        camera.position.y+=24;
-        camera.lookAt(controls.target);
-      }
       progress=0;
       buildToolList();
       buildTimeline();
