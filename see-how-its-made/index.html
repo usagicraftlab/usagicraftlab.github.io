@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <meta name="theme-color" content="#3b3e42">
+  <meta name="theme-color" content="#ffffff">
   <title>Print — USAGI Craft Lab.</title>
   <style>
     *{box-sizing:border-box}
@@ -14,10 +14,7 @@
     #app{position:relative;width:100%;height:100%;background:var(--stage-bg,linear-gradient(to top,#2c2f32 0%,#555a5f 100%));transition:background .25s ease}
     #stage{position:absolute;inset:0;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
     canvas{display:block;width:100%;height:100%}
-    .menu-button{position:absolute;top:22px;right:4vw;z-index:20;width:44px;height:44px;border:0;background:transparent;color:var(--fg,#111);cursor:pointer;padding:0;display:grid;place-items:center}
-    .menu-button span,.menu-button span:before,.menu-button span:after{content:"";display:block;width:24px;height:1px;background:currentColor;position:relative;transition:.2s}
-    .menu-button span:before{position:absolute;top:-7px}
-    .menu-button span:after{position:absolute;top:7px}
+    .menu-button{position:absolute;top:10px;right:4vw;z-index:20;height:44px;border:0;background:none;color:var(--fg,#111);cursor:pointer;padding:0;font:inherit;font-size:24px;line-height:1}
     .hud{position:absolute;left:4vw;right:4vw;bottom:max(28px,env(safe-area-inset-bottom));z-index:10;pointer-events:none;color:var(--fg,#111)}
     .tool-list{position:absolute;left:4vw;bottom:calc(max(28px,env(safe-area-inset-bottom)) + 52px);z-index:12;color:var(--fg,#111);font-size:13px;line-height:1;letter-spacing:.01em;pointer-events:none}
     .tool-list-inner{position:relative}
@@ -28,26 +25,31 @@
     .progress{position:relative;width:100%;height:2px;background:color-mix(in srgb,var(--fg,#111) 22%,transparent);cursor:pointer}
     .progress-fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--fg,#111)}
     .progress-thumb{position:absolute;top:50%;left:0;width:12px;height:12px;border-radius:50%;background:var(--fg,#111);transform:translate(-50%,-50%);border:0}
-    .panel{position:absolute;inset:0;z-index:30;background:var(--panel-bg,#3b3e42);color:var(--fg,#f2f2ef);display:none;padding:22px 4vw 36px;overflow:auto}
+    .panel{position:absolute;inset:0;z-index:30;background:#fff;color:#111;display:none;padding:22px 4vw 36px;overflow:auto}
     .panel.open{display:block}
-    .panel-head{display:flex;justify-content:flex-end;position:sticky;top:0;z-index:4;background:var(--panel-bg,#3b3e42)}
-    .close{width:44px;height:44px;border:0;background:transparent;color:inherit;font-size:30px;line-height:1;cursor:pointer;padding:0}
-    .panel-body{max-width:680px;margin:8vh 0 0 auto;width:min(100%,680px)}
-    .group{border-top:1px solid color-mix(in srgb,var(--fg,#111) 32%,transparent);padding:20px 0 34px}
-    .group-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin:0 0 18px;opacity:.58}
-    .choice{display:flex;width:100%;min-height:48px;align-items:center;justify-content:space-between;border:0;background:transparent;color:inherit;padding:0;text-align:left;cursor:pointer;font-size:clamp(22px,3.2vw,38px);letter-spacing:-.035em}
-    .choice .mark{font-size:13px;opacity:0}
+    .panel-head{height:42px;display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;z-index:4;background:#fff}
+    .panel-logo{font-weight:700;font-size:16px;line-height:28px}
+    .close{border:0;background:none;color:#111;font:inherit;font-size:28px;line-height:28px;cursor:pointer;padding:0}
+    .panel-body{max-width:none;margin:12vh 0 0;width:100%}
+    .group{border-top:1px solid #aaa;padding:20px 0 38px;display:grid;grid-template-columns:minmax(120px,1fr) 2fr;gap:5vw}
+    .group-label{font-size:13px;font-weight:400;letter-spacing:0;margin:5px 0 0;opacity:1}
+    .choice{display:flex;width:100%;min-height:48px;align-items:center;justify-content:space-between;border:0;background:transparent;color:#111;padding:0;text-align:left;cursor:pointer;font:inherit;font-size:clamp(28px,4.2vw,58px);line-height:1.12;letter-spacing:-.05em}
+    .choice .mark{font-size:11px;opacity:0}
     .choice.active .mark{opacity:1}
-    .toggle-row{display:flex;gap:8px;flex-wrap:wrap}
-    .pill{min-height:44px;border:1px solid color-mix(in srgb,var(--fg,#111) 30%,transparent);background:transparent;color:inherit;padding:0 18px;border-radius:999px;cursor:pointer}
-    .pill.active{background:var(--fg,#f2f2ef);color:var(--panel-bg,#3b3e42)}
+    .toggle-row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;padding-top:6px}
+    .pill{min-height:32px;border:0;border-bottom:1px solid transparent;background:none;color:#111;padding:0;cursor:pointer;font:inherit;font-size:14px}
+    .pill.active{border-bottom-color:#111}
     .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.04em;opacity:.38;pointer-events:none;transition:opacity 1.2s ease;color:var(--fg,#111);white-space:nowrap}
     .hint.hide{opacity:0}
     @media(max-width:700px){
-      .menu-button{top:14px;right:14px}
+      .menu-button{top:8px;right:18px}
       .hud{left:18px;right:18px;bottom:max(20px,env(safe-area-inset-bottom))}
-      .panel{padding:14px 18px 30px}
-      .panel-body{margin-top:6vh}
+      .panel{padding:20px 18px 30px}
+      .panel-body{margin-top:10vh}
+      .group{display:block;padding:18px 0 34px}
+      .group-label{margin:0 0 24px}
+      .choice{font-size:clamp(30px,9vw,42px);min-height:46px}
+      .toggle-row{gap:20px}
       .tool-list{left:18px;bottom:calc(max(20px,env(safe-area-inset-bottom)) + 48px);font-size:12px}
       .tool-item,.tool-indicator{height:30px}
     }
@@ -58,7 +60,7 @@
   <main id="app">
     <div id="stage" aria-label="3D printing simulation"></div>
 
-    <button class="menu-button" id="menuButton" type="button" aria-label="Open settings"><span></span></button>
+    <button class="menu-button" id="menuButton" type="button" aria-label="Open settings">☰</button>
 
     <div class="hint" id="hint">drag to change view</div>
 
@@ -76,7 +78,7 @@
     </div>
 
     <aside class="panel" id="panel" aria-label="Settings">
-      <div class="panel-head"><button class="close" id="closeButton" type="button" aria-label="Close settings">×</button></div>
+      <div class="panel-head"><b class="panel-logo">USAGI Craft Lab.</b><button class="close" id="closeButton" type="button" aria-label="Close settings">×</button></div>
       <div class="panel-body">
         <section class="group">
           <p class="group-label">Model</p>
@@ -98,8 +100,8 @@
           <p class="group-label">Background</p>
           <div class="toggle-row">
             <button class="pill" type="button" data-bg="warm">Warm white</button>
-            <button class="pill" type="button" data-bg="white">White</button>
-            <button class="pill active" type="button" data-bg="gray">Gray</button>
+            <button class="pill active" type="button" data-bg="white">White</button>
+            <button class="pill" type="button" data-bg="gray">Gray</button>
             <button class="pill" type="button" data-bg="black">Black</button>
           </div>
         </section>
@@ -179,9 +181,9 @@
 
     const scene=new THREE.Scene();
     scene.background=null;
-    app.style.setProperty('--stage-bg',themes.gray.stage);
-    app.style.setProperty('--panel-bg',themes.gray.panel);
-    app.style.setProperty('--fg',themes.gray.fg);
+    app.style.setProperty('--stage-bg',themes.white.stage);
+    app.style.setProperty('--panel-bg',themes.white.panel);
+    app.style.setProperty('--fg',themes.white.fg);
     const camera=new THREE.PerspectiveCamera(32,1,.1,2000);
     camera.position.set(180,125,220);
 
