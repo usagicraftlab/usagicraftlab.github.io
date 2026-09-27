@@ -258,8 +258,8 @@
         data:'data-ukigara-tray.txt',
         tools:{
           0:{name:'navy',css:'#223B59',three:0x223B59,opacity:1},
-          1:{name:'lemon yellow',css:'#F4E04D',three:0xF4E04D,opacity:1},
-          2:{name:'turquoise blue',css:'#35B8C7',three:0x35B8C7,opacity:1}
+          1:{name:'turquoise blue',css:'#35B8C7',three:0x35B8C7,opacity:1},
+          2:{name:'lemon yellow',css:'#F4E04D',three:0xF4E04D,opacity:1}
         },targetY:13,camera:[195,105,245]
       },
       gradient:{
@@ -569,9 +569,9 @@
     }
 
     function modelToolOrder(){
-      const order=[];
-      for(const s of segments)if(!order.includes(s.tool))order.push(s.tool);
-      return order;
+      const used=new Set();
+      for(const s of segments)used.add(s.tool);
+      return [...used].sort((a,b)=>a-b);
     }
 
     function buildToolList(){
