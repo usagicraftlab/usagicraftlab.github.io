@@ -105,10 +105,13 @@
     body.embed-block.embed-group-gunya .model-list [data-model="gunyaBody"],
     body.embed-block.embed-group-gunya .model-list [data-model="gunyaTrays"],
     body.embed-block.embed-group-card .model-list [data-model="cardOuter"],
-    body.embed-block.embed-group-card .model-list [data-model="cardInner"]{display:flex}
+    body.embed-block.embed-group-card .model-list [data-model="cardInner"],
+    body.embed-block.embed-group-ukigara .model-list [data-model="clock"],
+    body.embed-block.embed-group-ukigara .model-list [data-model="ukigaraTray"]{display:flex}
     body.embed-block.embed-single .model-list{display:none!important}
     body.embed-block.embed-group-gunya .model-list [data-model="gunyaBody"]::after,
-    body.embed-block.embed-group-card .model-list [data-model="cardOuter"]::after{
+    body.embed-block.embed-group-card .model-list [data-model="cardOuter"]::after,
+    body.embed-block.embed-group-ukigara .model-list [data-model="clock"]::after{
       content:'/';
       display:inline-block;
       margin-left:12px;
@@ -171,6 +174,7 @@
 
     <div class="model-list" aria-label="Model">
       <button class="model-choice active" type="button" data-model="clock"><span>UKIGARA Clock</span><span class="mark">●</span></button>
+      <button class="model-choice" type="button" data-model="ukigaraTray"><span>UKIGARA Tray</span><span class="mark">●</span></button>
       <button class="model-choice" type="button" data-model="gradient"><span>Gradient</span><span class="mark">●</span></button>
       <button class="model-choice" type="button" data-model="gunyaBody"><span>Gunya Drawer · Body</span><span class="mark">●</span></button>
       <button class="model-choice" type="button" data-model="gunyaTrays"><span>Gunya Drawer · Tray</span><span class="mark">●</span></button>
@@ -217,15 +221,21 @@
       const trayLabel=document.querySelector('[data-model="gunyaTrays"] span:first-child');
       const outerLabel=document.querySelector('[data-model="cardOuter"] span:first-child');
       const innerLabel=document.querySelector('[data-model="cardInner"] span:first-child');
+      const clockLabel=document.querySelector('[data-model="clock"] span:first-child');
+      const ukigaraTrayLabel=document.querySelector('[data-model="ukigaraTray"] span:first-child');
       if(bodyLabel)bodyLabel.textContent='Body';
       if(trayLabel)trayLabel.textContent='Tray';
       if(outerLabel)outerLabel.textContent='Outer';
       if(innerLabel)innerLabel.textContent='Inner';
+      if(clockLabel)clockLabel.textContent='Clock';
+      if(ukigaraTrayLabel)ukigaraTrayLabel.textContent='Tray';
 
       if(requestedBlockModel==='gunyaBody'||requestedBlockModel==='gunyaTrays'){
         document.body.classList.add('embed-group-gunya');
       }else if(requestedBlockModel==='cardOuter'||requestedBlockModel==='cardInner'){
         document.body.classList.add('embed-group-card');
+      }else if(requestedBlockModel==='clock'||requestedBlockModel==='ukigaraTray'){
+        document.body.classList.add('embed-group-ukigara');
       }else{
         document.body.classList.add('embed-single');
       }
@@ -243,6 +253,14 @@
           1:{name:'white',css:'#F2F6FA',three:0xF2F6FA,opacity:1},
           2:{name:'blue',css:'#315f9a',three:0x315f9a,opacity:1}
         },targetY:20,camera:[180,115,220]
+      },
+      ukigaraTray:{
+        data:'data-ukigara-tray.txt',
+        tools:{
+          0:{name:'navy',css:'#223B59',three:0x223B59,opacity:1},
+          1:{name:'lemon yellow',css:'#F4E04D',three:0xF4E04D,opacity:1},
+          2:{name:'turquoise blue',css:'#35B8C7',three:0x35B8C7,opacity:1}
+        },targetY:13,camera:[195,105,245]
       },
       gradient:{
         data:'data-gradient.txt',
