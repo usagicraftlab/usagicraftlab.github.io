@@ -1,0 +1,78 @@
+name: Apply full-bleed header overlap
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/header-overlap-update.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-header-overlap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make header overlay page content from top edge
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          paths = [
+              'index.html',
+              'works.html',
+              'techniques.html',
+              'work-ukigara.html',
+              'work-cardcase.html',
+              'work-gunya.html',
+              'work-gradient.html',
+              'see-how-its-made/index.html',
+          ]
+
+          marker_start = '/* Full-bleed header overlap — 2026-10-07 */'
+          marker_end = '/* /Full-bleed header overlap — 2026-10-07 */'
+          css = '''/* Full-bleed header overlap — 2026-10-07 */
+header{
+  position:fixed!important;
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  z-index:100!important;
+}
+/* /Full-bleed header overlap — 2026-10-07 */'''
+
+          block_re = re.compile(re.escape(marker_start) + r'.*?' + re.escape(marker_end), re.S)
+
+          for name in paths:
+              p = Path(name)
+              if not p.exists():
+                  print(f'skip missing: {name}')
+                  continue
+              text = p.read_text(encoding='utf-8')
+              text = block_re.sub('', text)
+              pos = text.rfind('</style>')
+              if pos != -1:
+                  text = text[:pos] + '\n' + css + '\n' + text[pos:]
+              else:
+                  pos = text.lower().rfind('</head>')
+                  if pos == -1:
+                      raise RuntimeError(f'No </style> or </head> in {name}')
+                  text = text[:pos] + '\n<style>\n' + css + '\n</style>\n' + text[pos:]
+              p.write_text(text, encoding='utf-8')
+              print(f'updated: {name}')
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "usagicraftlab"
+          git config user.email "42473676+usagicraftlab@users.noreply.github.com"
+          git add index.html works.html techniques.html work-ukigara.html work-cardcase.html work-gunya.html work-gradient.html see-how-its-made/index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Align page content to top behind header"
+          git push
