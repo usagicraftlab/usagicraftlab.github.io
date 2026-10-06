@@ -16,8 +16,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Make header overlay page content from top edge
+        shell: bash
         run: |
-          python - <<'PY'
+          python3 - <<'PY'
           from pathlib import Path
           import re
 
@@ -66,6 +67,7 @@ header{
           PY
 
       - name: Commit changes
+        shell: bash
         run: |
           git config user.name "usagicraftlab"
           git config user.email "42473676+usagicraftlab@users.noreply.github.com"
