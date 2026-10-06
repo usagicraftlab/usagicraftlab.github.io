@@ -16,82 +16,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Apply transparent header and floating controls
+        shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
-
-          paths = [
-              'index.html',
-              'works.html',
-              'techniques.html',
-              'work-ukigara.html',
-              'work-cardcase.html',
-              'work-gunya.html',
-              'work-gradient.html',
-              'see-how-its-made/index.html',
-          ]
-
+          import base64, re
+          paths = ['index.html','works.html','techniques.html','work-ukigara.html','work-cardcase.html','work-gunya.html','work-gradient.html','see-how-its-made/index.html']
           marker_start = '/* Header island UI — 2026-10-06 */'
           marker_end = '/* /Header island UI — 2026-10-06 */'
-          css = '''/* Header island UI — 2026-10-06 */
-header{
-  background:transparent!important;
-  backdrop-filter:none!important;
-  -webkit-backdrop-filter:none!important;
-}
-header .tools{
-  display:flex!important;
-  align-items:stretch!important;
-  gap:0!important;
-  height:36px!important;
-  min-height:36px!important;
-  max-height:36px!important;
-  padding:0!important;
-  background:rgba(255,255,255,.5)!important;
-  backdrop-filter:blur(3px)!important;
-  -webkit-backdrop-filter:blur(3px)!important;
-  border:1px solid rgba(17,17,17,.12)!important;
-  border-radius:999px!important;
-  overflow:hidden!important;
-}
-header .lang{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  height:100%!important;
-  padding:0 13px!important;
-  font-size:12px!important;
-  line-height:1!important;
-}
-header .hamb{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  width:44px!important;
-  height:100%!important;
-  margin:0!important;
-  padding:0!important;
-  border:0!important;
-  border-left:1px solid rgba(17,17,17,.18)!important;
-  border-radius:0!important;
-  background:transparent!important;
-  font-size:22px!important;
-  line-height:1!important;
-}
-@media(max-width:700px){
-  header .tools{
-    height:36px!important;
-    min-height:36px!important;
-    max-height:36px!important;
-  }
-  header .lang{padding:0 12px!important}
-  header .hamb{width:42px!important}
-}
-/* /Header island UI — 2026-10-06 */'''
-
+          css = base64.b64decode('LyogSGVhZGVyIGlzbGFuZCBVSSDigJQgMjAyNi0xMC0wNiAqLwpoZWFkZXJ7CiAgYmFja2dyb3VuZDp0cmFuc3BhcmVudCFpbXBvcnRhbnQ7CiAgYmFja2Ryb3AtZmlsdGVyOm5vbmUhaW1wb3J0YW50OwogIC13ZWJraXQtYmFja2Ryb3AtZmlsdGVyOm5vbmUhaW1wb3J0YW50Owp9CmhlYWRlciAudG9vbHN7CiAgZGlzcGxheTpmbGV4IWltcG9ydGFudDsKICBhbGlnbi1pdGVtczpzdHJldGNoIWltcG9ydGFudDsKICBnYXA6MCFpbXBvcnRhbnQ7CiAgaGVpZ2h0OjM2cHghaW1wb3J0YW50OwogIG1pbi1oZWlnaHQ6MzZweCFpbXBvcnRhbnQ7CiAgbWF4LWhlaWdodDozNnB4IWltcG9ydGFudDsKICBwYWRkaW5nOjAhaW1wb3J0YW50OwogIGJhY2tncm91bmQ6cmdiYSgyNTUsMjU1LDI1NSwuNSkhaW1wb3J0YW50OwogIGJhY2tkcm9wLWZpbHRlcjpibHVyKDNweCkhaW1wb3J0YW50OwogIC13ZWJraXQtYmFja2Ryb3AtZmlsdGVyOmJsdXIoM3B4KSFpbXBvcnRhbnQ7CiAgYm9yZGVyOjFweCBzb2xpZCByZ2JhKDE3LDE3LDE3LC4xMikhaW1wb3J0YW50OwogIGJvcmRlci1yYWRpdXM6OTk5cHghaW1wb3J0YW50OwogIG92ZXJmbG93OmhpZGRlbiFpbXBvcnRhbnQ7Cn0KaGVhZGVyIC5sYW5newogIGRpc3BsYXk6ZmxleCFpbXBvcnRhbnQ7CiAgYWxpZ24taXRlbXM6Y2VudGVyIWltcG9ydGFudDsKICBqdXN0aWZ5LWNvbnRlbnQ6Y2VudGVyIWltcG9ydGFudDsKICBoZWlnaHQ6MTAwJSFpbXBvcnRhbnQ7CiAgcGFkZGluZzowIDEzcHghaW1wb3J0YW50OwogIGZvbnQtc2l6ZToxMnB4IWltcG9ydGFudDsKICBsaW5lLWhlaWdodDoxIWltcG9ydGFudDsKfQpoZWFkZXIgLmhhbWJ7CiAgZGlzcGxheTpmbGV4IWltcG9ydGFudDsKICBhbGlnbi1pdGVtczpjZW50ZXIhaW1wb3J0YW50OwogIGp1c3RpZnktY29udGVudDpjZW50ZXIhaW1wb3J0YW50OwogIHdpZHRoOjQ0cHghaW1wb3J0YW50OwogIGhlaWdodDoxMDAlIWltcG9ydGFudDsKICBtYXJnaW46MCFpbXBvcnRhbnQ7CiAgcGFkZGluZzowIWltcG9ydGFudDsKICBib3JkZXI6MCFpbXBvcnRhbnQ7CiAgYm9yZGVyLWxlZnQ6MXB4IHNvbGlkIHJnYmEoMTcsMTcsMTcsLjE4KSFpbXBvcnRhbnQ7CiAgYm9yZGVyLXJhZGl1czowIWltcG9ydGFudDsKICBiYWNrZ3JvdW5kOnRyYW5zcGFyZW50IWltcG9ydGFudDsKICBmb250LXNpemU6MjJweCFpbXBvcnRhbnQ7CiAgbGluZS1oZWlnaHQ6MSFpbXBvcnRhbnQ7Cn0KQG1lZGlhKG1heC13aWR0aDo3MDBweCl7CiAgaGVhZGVyIC50b29sc3sKICAgIGhlaWdodDozNnB4IWltcG9ydGFudDsKICAgIG1pbi1oZWlnaHQ6MzZweCFpbXBvcnRhbnQ7CiAgICBtYXgtaGVpZ2h0OjM2cHghaW1wb3J0YW50OwogIH0KICBoZWFkZXIgLmxhbmd7cGFkZGluZzowIDEycHghaW1wb3J0YW50fQogIGhlYWRlciAuaGFtYnt3aWR0aDo0MnB4IWltcG9ydGFudH0KfQovKiAvSGVhZGVyIGlzbGFuZCBVSSDigJQgMjAyNi0xMC0wNiAqLw==').decode('utf-8')
           block_re = re.compile(re.escape(marker_start) + r'.*?' + re.escape(marker_end), re.S)
-
           for name in paths:
               p = Path(name)
               if not p.exists():
@@ -112,6 +46,7 @@ header .hamb{
           PY
 
       - name: Commit changes
+        shell: bash
         run: |
           git config user.name "usagicraftlab"
           git config user.email "42473676+usagicraftlab@users.noreply.github.com"
