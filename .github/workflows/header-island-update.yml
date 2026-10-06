@@ -1,0 +1,124 @@
+name: Apply header island UI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/header-island-update.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-header-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply transparent header and floating controls
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          paths = [
+              'index.html',
+              'works.html',
+              'techniques.html',
+              'work-ukigara.html',
+              'work-cardcase.html',
+              'work-gunya.html',
+              'work-gradient.html',
+              'see-how-its-made/index.html',
+          ]
+
+          marker_start = '/* Header island UI — 2026-10-06 */'
+          marker_end = '/* /Header island UI — 2026-10-06 */'
+          css = '''/* Header island UI — 2026-10-06 */
+header{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+header .tools{
+  display:flex!important;
+  align-items:stretch!important;
+  gap:0!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  padding:0!important;
+  background:rgba(255,255,255,.5)!important;
+  backdrop-filter:blur(3px)!important;
+  -webkit-backdrop-filter:blur(3px)!important;
+  border:1px solid rgba(17,17,17,.12)!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+header .lang{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:100%!important;
+  padding:0 13px!important;
+  font-size:12px!important;
+  line-height:1!important;
+}
+header .hamb{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:44px!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-left:1px solid rgba(17,17,17,.18)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  font-size:22px!important;
+  line-height:1!important;
+}
+@media(max-width:700px){
+  header .tools{
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+  }
+  header .lang{padding:0 12px!important}
+  header .hamb{width:42px!important}
+}
+/* /Header island UI — 2026-10-06 */'''
+
+          block_re = re.compile(re.escape(marker_start) + r'.*?' + re.escape(marker_end), re.S)
+
+          for name in paths:
+              p = Path(name)
+              if not p.exists():
+                  print(f'skip missing: {name}')
+                  continue
+              text = p.read_text(encoding='utf-8')
+              text = block_re.sub('', text)
+              pos = text.rfind('</style>')
+              if pos != -1:
+                  text = text[:pos] + '\n' + css + '\n' + text[pos:]
+              else:
+                  pos = text.lower().rfind('</head>')
+                  if pos == -1:
+                      raise RuntimeError(f'No </style> or </head> in {name}')
+                  text = text[:pos] + '\n<style>\n' + css + '\n</style>\n' + text[pos:]
+              p.write_text(text, encoding='utf-8')
+              print(f'updated: {name}')
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "usagicraftlab"
+          git config user.email "42473676+usagicraftlab@users.noreply.github.com"
+          git add index.html works.html techniques.html work-ukigara.html work-cardcase.html work-gunya.html work-gradient.html see-how-its-made/index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Refine transparent header controls"
+          git push
