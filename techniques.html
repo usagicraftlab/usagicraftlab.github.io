@@ -13,6 +13,62 @@ footer{padding:25px 4vw;border-top:1px solid #bbb;font-size:11px}
 @media(max-width:700px){.technique-image{margin-bottom:24px}}
 .section h2{font-size:clamp(17px,1.8vw,26px)!important;font-weight:700!important;letter-spacing:0!important;line-height:1.55!important;margin:0 0 28px!important}
 @media(max-width:700px){.section h2{font-size:19px!important;margin-bottom:24px!important}}
+
+/* Header island UI — 2026-10-06 */
+header{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+header .tools{
+  display:flex!important;
+  align-items:stretch!important;
+  gap:0!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  padding:0!important;
+  background:rgba(255,255,255,.5)!important;
+  backdrop-filter:blur(3px)!important;
+  -webkit-backdrop-filter:blur(3px)!important;
+  border:1px solid rgba(17,17,17,.12)!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+header .lang{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:100%!important;
+  padding:0 13px!important;
+  font-size:12px!important;
+  line-height:1!important;
+}
+header .hamb{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:44px!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-left:1px solid rgba(17,17,17,.18)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  font-size:22px!important;
+  line-height:1!important;
+}
+@media(max-width:700px){
+  header .tools{
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+  }
+  header .lang{padding:0 12px!important}
+  header .hamb{width:42px!important}
+}
+/* /Header island UI — 2026-10-06 */
 </style></head><body>
 <header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
 <div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="techniques.html">Approach</a><a href="see-how-its-made/">Making</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div>

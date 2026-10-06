@@ -40,5 +40,61 @@ header .lang,header .lang button,header .hamb{line-height:1!important;margin:0!i
  header{height:60px!important;min-height:60px!important;max-height:60px!important;padding:0 18px!important}
  header .logo,header .tools{height:60px!important}
 }
+
+/* Header island UI — 2026-10-06 */
+header{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+header .tools{
+  display:flex!important;
+  align-items:stretch!important;
+  gap:0!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  padding:0!important;
+  background:rgba(255,255,255,.5)!important;
+  backdrop-filter:blur(3px)!important;
+  -webkit-backdrop-filter:blur(3px)!important;
+  border:1px solid rgba(17,17,17,.12)!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+header .lang{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:100%!important;
+  padding:0 13px!important;
+  font-size:12px!important;
+  line-height:1!important;
+}
+header .hamb{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:44px!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-left:1px solid rgba(17,17,17,.18)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  font-size:22px!important;
+  line-height:1!important;
+}
+@media(max-width:700px){
+  header .tools{
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+  }
+  header .lang{padding:0 12px!important}
+  header .hamb{width:42px!important}
+}
+/* /Header island UI — 2026-10-06 */
 </style></head><body><header><a class="logo" href="index.html">USAGI Craft Lab.</a><div class="tools"><div class="lang"><button data-setlang="ja" class="active">JP</button> / <button data-setlang="en">EN</button></div><button class="hamb" aria-label="Menu">☰</button></div></header>
 <div class="overlay"><div class="menuhead"><b>USAGI Craft Lab.</b><button class="close">×</button></div><nav class="menulinks"><a href="index.html">Home</a><a href="works.html">Works</a><a href="techniques.html">Approach</a><a href="see-how-its-made/">Making</a><a href="index.html#contact">Contact</a></nav><div class="external"><a href="https://usagi-craft-lab.booth.pm/" target="_blank" rel="noopener">Shop ↗</a><a href="https://instagram.com/usagi_craft_lab/" target="_blank" rel="noopener">Instagram ↗</a><a href="https://x.com/usagi_craft_lab" target="_blank" rel="noopener">X ↗</a></div></div><main><div class="hero-title">Works</div><section class="cards"><a class="card" href="work-ukigara.html"><img src="images/ukigara/01.JPG" alt="UKIGARA"><span class="tag">UKIGARA →</span></a><a class="card" href="work-cardcase.html"><img src="images/cardcase/01.JPG" alt="Transparent Card Case"><span class="tag">Transparent Card Case →</span></a><a class="card" href="work-gunya.html"><img src="images/gunya/01.JPG" alt="Gunya Drawer"><span class="tag">Gunya Drawer →</span></a><a class="card" href="work-gradient.html"><img src="images/gradient/01.JPG" alt="Gradient"><span class="tag">Gradient →</span></a></section></main><footer>© USAGI Craft Lab.</footer><script>(()=>{const body=document.body,ov=document.querySelector('.overlay');document.querySelector('.hamb').onclick=()=>ov.classList.add('open');document.querySelector('.close').onclick=()=>ov.classList.remove('open');const set=l=>{body.classList.toggle('en',l==='en');localStorage.setItem('ucl-lang',l);document.querySelectorAll('[data-setlang]').forEach(b=>b.classList.toggle('active',b.dataset.setlang===l))};document.querySelectorAll('[data-setlang]').forEach(b=>b.onclick=()=>set(b.dataset.setlang));set(localStorage.getItem('ucl-lang')||'ja')})()</script></body></html>

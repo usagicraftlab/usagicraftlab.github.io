@@ -130,7 +130,63 @@
     body.embed-block .tool-list,
     body.embed-block .model-list,
     body.embed-block .hud{transform:none}
-  </style>
+  
+/* Header island UI — 2026-10-06 */
+header{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+header .tools{
+  display:flex!important;
+  align-items:stretch!important;
+  gap:0!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  padding:0!important;
+  background:rgba(255,255,255,.5)!important;
+  backdrop-filter:blur(3px)!important;
+  -webkit-backdrop-filter:blur(3px)!important;
+  border:1px solid rgba(17,17,17,.12)!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+header .lang{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:100%!important;
+  padding:0 13px!important;
+  font-size:12px!important;
+  line-height:1!important;
+}
+header .hamb{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:44px!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-left:1px solid rgba(17,17,17,.18)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  font-size:22px!important;
+  line-height:1!important;
+}
+@media(max-width:700px){
+  header .tools{
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+  }
+  header .lang{padding:0 12px!important}
+  header .hamb{width:42px!important}
+}
+/* /Header island UI — 2026-10-06 */
+</style>
 </head>
 <body>
   <main id="app">
